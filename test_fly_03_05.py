@@ -10,12 +10,11 @@ uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E770')
 
 cflib.crtp.init_drivers()
 
-scf = SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache'))
-pc = PositionHlCommander(scf, default_velocity= 0.3, controller=PositionHlCommander.CONTROLLER_MELLINGER)
-multiranger = Multiranger(scf)
-
-while 1:
-    pc.forward(0.01)
-    if multiranger._front_distance < 0.1:
-        break 
-    #pc.go_to(0,0) #default_height
+with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
+    with PositionHlCommander(scf, controller=PositionHlCommander.CONTROLLER_MELLINGER) as pc:
+        with Multiranger(scf) as multiranger:
+            while 1:
+                pc.forward(0.01)
+                if multiranger._front_distance < 0.1:
+                    break 
+                #pc.go_to(0,0) #default_height
