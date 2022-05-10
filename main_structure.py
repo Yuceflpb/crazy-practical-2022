@@ -61,20 +61,30 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     if(pc.x > 3.5):
                         state = State.search_target
                     else:
-                       
                         y_position= pc.y
                         if multiranger._front_distance < 0.1:
+                            incr = 0
+                            obstacle_in_front = True
                             print("on est dans le while obstacle")
                             if y_position > 1.5:
                                 pc.right(0.01)
                             else:
                                 pc.left(0.01)
+                        elif obstacle_in_front:
+                            incr = incr +1
+                            if y_position > 1.5:
+                                pc.right(0.01)
+                            else:
+                                pc.left(0.01)
+                            if incr = 50:
+                                obstacle_in_front = False   
                         else:
                             pc.forward(0.01)
-                        if y_position > 1.5:
-                            pc.right(0.5)
-                        else:
-                            pc.left(0.5)
+                        
+                        
+                        
+                        
+                        
           
                         
                         
