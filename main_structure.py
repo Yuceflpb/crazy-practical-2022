@@ -8,7 +8,7 @@ from cflib.positioning.position_hl_commander import PositionHlCommander
 from cflib.utils.multiranger import Multiranger
 from cflib.utils import uri_helper
 
-from time import time
+import time
 
 from enum import Enum
 
@@ -35,22 +35,24 @@ TOLERANCE_DIST = 2e-2 #2cm
 uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E770')
 
 #récupérer ca quand on lance le programme, ou hardcode
-x_init = 1
-y_init = 2
-z_box_init = 0.3 #on fait ca ??
+x_init = 0
+y_init = 0
+z_box_init = 0#0.3 #on fait ca ??
 
 
 cflib.crtp.init_drivers()
 
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
-    with PositionHlCommander(scf, x= x_init, y=y_init, z = z_box_init ,controller=PositionHlCommander.CONTROLLER_MELLINGER) as pc:
+    with PositionHlCommander(scf, x= x_init, y=y_init, z = z_box_init) as pc:
+    #with PositionHlCommander(scf, x= x_init, y=y_init, z = z_box_init ,controller=PositionHlCommander.CONTROLLER_MELLINGER) as pc:
         with Multiranger(scf) as multiranger:
             #faire les inits
 
             state = State.take_off_from_base
 
             while 1:
+                print('state=',state)
                 if state == State.take_off_from_base:
                     time.sleep(1)
                     state = State.go_to_target_zone
@@ -58,11 +60,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 
                 elif state == State.go_to_target_zone:
                     #partie yucef
-                    if(pc.x > 3.5):
+                    if(pc._x > 3.5):
                         state = State.search_target
                     else:
                        
-                        y_position= pc.y
+                        y_position= pc._y
                         if multiranger._front_distance < 0.1:
                             print("on est dans le while obstacle")
                             if y_position > 1.5:
@@ -181,3 +183,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             
                 else:
                     print("unknown state")
+
+                if isinstance(multiranger._up_distance, float):
+                    if multiranger._up_distance < 0.2:
+                        print("landing : plafond")
+                        break
+                        #print("land : ", pc._x) 
+                        #pc._x = 0.33
+                        #print("land : ", pc._x)
