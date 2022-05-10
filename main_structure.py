@@ -51,23 +51,32 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
             state = State.take_off_from_base
 
+            init = True
+
             while 1:
-                print('state=',state)
+                #print('state=',state)
                 if state == State.take_off_from_base:
                     time.sleep(1)
                     state = State.go_to_target_zone
                     pass
                 
                 elif state == State.go_to_target_zone:
+                    if init:
+                        print('fait le init!')
+                        obstacle_in_front = False
+                        init=False
+
                     #partie yucef
+
                     if(pc._x > 3.5):
                         state = State.search_target
                     else:
-                        y_position= pc.y
-                        if multiranger._front_distance < 0.1:
+                        y_position= pc._y
+                        if isinstance(multiranger._down_distance, float) and multiranger._front_distance < 0.4:
+                            print('distnace=', multiranger._front_distance)
                             incr = 0
                             obstacle_in_front = True
-                            print("on est dans le while obstacle")
+                            #print("on est dans le while obstacle")
                             if y_position > 1.5:
                                 pc.right(0.01)
                             else:
@@ -78,7 +87,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                                 pc.right(0.01)
                             else:
                                 pc.left(0.01)
-                            if incr = 50:
+                            if incr == 0:
                                 obstacle_in_front = False   
                         else:
                             pc.forward(0.01)
@@ -193,6 +202,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             
                 else:
                     print("unknown state")
+
+                #init = False #la boucle init se fait qu'une fois
 
                 if isinstance(multiranger._up_distance, float):
                     if multiranger._up_distance < 0.2:
