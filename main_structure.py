@@ -25,6 +25,9 @@ class State(Enum):
     refine_base = 10
     landing_base = 11
     exit = 12
+    
+    FINDING_X = 1
+    FINDING_Y = 2
 
     error = -1
 
@@ -98,7 +101,6 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else:
                             pc.forward(0.01)
                         
-                    pass
                 
                 elif state == State.search_target:
                     #partie arthur
@@ -135,19 +137,109 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 elif state == State.take_off_from_target:
                     pc.take_off()
                     state = State.go_to_base_loc
+                    state_backward = finding_x
                     pass
 
                 elif state == State.go_to_base_loc:
-                    #partie yucef retour
+                   
+                    
+                    if(state_backward == FINDING_X):
+                        if(pc._x < x_init):
+                            state_backward= FINDING_Y
+                            if(pc._y > y_init):
+                                right_side = True
+                            else:
+                                right_side = False
+                            
+                        else:
+                            y_position= pc._y
+                            if isinstance(multiranger._front_back, float) and multiranger._front_distance < 0.4: 
+                                incr = 0
+                                obstacle_in_front = True
+                                if y_position > 1.5:
+                                    pc.right(0.01)
+                                else:
+                                    pc.left(0.01)
+                            elif obstacle_in_front:
+                                incr = incr +1
+                                if y_position > 1.5:
+                                    pc.right(0.01)
+                                else:
+                                    pc.left(0.01)
+                                if incr == 50:
+                                    obstacle_in_front = False   
+                            else:
+                                pc.backward(0.01)
+                    else:
+                        if(right_side):
+                            if(pc._y < y_init):
+                                state = State.search_target
+                            else:
+                                if isinstance(multiranger._front_back, float) and multiranger._right_distance < 0.4: 
+                                    incr = 0
+                                    obstacle_in_front = True
+                                    pc.forward(0.01)
+                                elif obstacle_in_front:
+                                    incr = incr +1
+                                    pc.forward(0.01)
+                                    if incr == 50:
+                                        obstacle_in_front = False 
+                                        obstacle_overtake = True
+                                        incr_2 = 0
+                                elif obstacle_overtake:
+                                    incr_2 = incr_2 +1
+                                    if isinstance(multiranger._front_back, float) and multiranger._back_distance < 0.4: 
+                                        incr_2 = 0
+                                    pc.right(0.01)     
+                                    if incr2 == 50:
+                                        obstacle_overtake = False
+                                        y_return = True
+                                elif y_return:
+                                    if (pc._x < x_init):
+                                        pc.backward(0.01)
+                                    else:
+                                        y_return = False
+                                else:
+                                    pc.right(0.01)
+                        else:
+                            if(pc._y > y_init):
+                                state = State.search_target
+                            else:
+                                if isinstance(multiranger._front_back, float) and multiranger._left_distance < 0.4: 
+                                    incr = 0
+                                    obstacle_in_front = True
+                                    pc.forward(0.01)
+                                elif obstacle_in_front:
+                                    incr = incr +1
+                                    pc.forward(0.01)
+                                    if incr == 50:
+                                        obstacle_in_front = False 
+                                        obstacle_overtake = True
+                                        incr_2 = 0
+                                elif obstacle_overtake:
+                                    incr_2 = incr_2 +1
+                                    if isinstance(multiranger._front_back, float) and multiranger._back_distance < 0.4: 
+                                        incr_2 = 0
+                                    pc.left(0.01)     
+                                    if incr2 == 50:
+                                        obstacle_overtake = False
+                                        y_return = True
+                                elif y_return:
+                                    if (pc._x < x_init):
+                                        pc.backward(0.01)
+                                    else:
+                                        y_return = False
+                                else:
+                                    pc.left(0.01)       
+                          
                     #aller dans la direction du goal, dabord x ou y 
 
                     #if obs, esquiver dans la direction du goal
 
                     #if zrange detet qqch -> refine_base direct
 
-                    if abs(pc._x - x_init) <= TOLERANCE_DIST and abs(pc._y - y_init) <= TOLERANCE_DIST:
-                        state = State.search_base
-                    pass
+                    #if abs(pc._x - x_init) <= TOLERANCE_DIST and abs(pc._y - y_init) <= TOLERANCE_DIST:
+                    #    state = State.search_base
                 
                 elif state == State.search_base:
                     #on n'as donc pas encore detecté de z_diff
