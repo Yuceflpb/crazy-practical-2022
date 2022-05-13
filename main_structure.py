@@ -181,8 +181,10 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         elif obstacle==GOING_SIDEWAY : #After the drone doesnt see obstacle it still must go a little bit further
                             if avoid_obstacle_on==FRONT:
                                 pc.forward(OVERSHOOT_DIST, velocity=SLOW)
+                                print('OVERSHOOT FRONT')
                             else:
                                 pc.back(OVERSHOOT_DIST, velocity=SLOW)
+                                print('OVERSHOOT BACK')
                             pc.right(OBSTACLE_LIM+OVERSHOOT_DIST*2) #The drone need to see the obstacle
 
                             obstacle = OVERTAKING # No obstacle to avoid anymore
@@ -195,6 +197,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                                 pc.right(MOVING_DIST, velocity=SLOW)
                             else : #The obstacle has been overtaken
                                 pc.right(OVERSHOOT_DIST, velocity = SLOW)
+                                print('OVERSHOOT RIGHT')
                                 obstacle = GOING_BACK_ON_PATH
                         
                         elif obstacle== GOING_BACK_ON_PATH:
@@ -206,7 +209,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                                 obstacle = False
 
                         else: #If no obstacle, or that the obstacle avoidance has been done
-                            print('no obstacle')
+                            #print('no obstacle')
                             pc.right(MOVING_DIST, velocity=SLOW)
                         
 
@@ -267,7 +270,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                                 obstacle = False
 
                         else: #If no obstacle, and there were none previous loop as well
-                            print('No Obstacle!!!!')
+                            #print('No Obstacle!!!!')
                             pc.left(MOVING_DIST, velocity=SLOW)
                         
 
@@ -383,7 +386,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                 #init = False #la boucle init se fait qu'une fois
 
-
+                print('obstacle=', obstacle)
                 if isinstance(multiranger._up_distance, float):
                     if multiranger._up_distance < 0.2:
                         print("landing : plafond")
