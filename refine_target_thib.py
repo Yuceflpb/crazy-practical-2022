@@ -133,10 +133,13 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             
 
                             pc.back(BOX_SIZE/2 - OVERSHOT_DIST_SLOW_UP, velocity=0.1)
+                            print("on est bon en x")
                             time.sleep(1)
                             #corect coord for step up/down -> we know we are 15 more than detect
+                            print("juste avant")
                             pc._x = x_detec + BOX_SIZE/2
-                            
+                            print("juste après")
+
                             prev_down_dist = multiranger._down_distance #mesure distance ON the box
 
                             state_refine_target = State_refine_target.step_off_side
