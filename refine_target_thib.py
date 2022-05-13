@@ -25,7 +25,7 @@ DISTANCE_STANDART_STEP = 0.01 #m
 
 MAX_CTR_Z_MEAS = 7
 Z_DETEC_TRESHOLD = 0.05 #m
-SLOWER_SPEED = 0.1
+SLOWER_SPEED = 0.15
 FASTER_SPEED = 0.5
 #OVERSHOT_DIST_FAST_DOWN = 0.1 #to measure
 OVERSHOT_DIST_SLOW_UP = 0.1  #to measure
@@ -36,7 +36,7 @@ MAX_CRT_PRINT = 20
 
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
-    with PositionHlCommander(scf, default_velocity=0.4) as pc:
+    with PositionHlCommander(scf, default_height= 0.4 , default_velocity=0.4) as pc:
         with Multiranger(scf) as multiranger:
             
             time.sleep(2)
