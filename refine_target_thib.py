@@ -62,6 +62,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     z_meas_ctr = 0 #counter
 
                     #pc._velocity = SLOWER_SPEED #dans linit
+                    print("speed init : ", pc._default_velocity)
 
 
                     #end inits
@@ -81,17 +82,16 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         
                         if isinstance(multiranger._down_distance, float) and\
                            isinstance(prev_down_dist, float) and\
-                           abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:                       
-                            
+                           abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:               
+                                  
+                            print("passe a step off : ", abs(multiranger._down_distance - prev_down_dist))
 
 
                             prev_down_dist = multiranger._down_distance #mesure distance ON the box
 
                             state_refine_target = State_refine_target.step_off
                     ##
-
-                    #comming with large speed slow down
-                    pc._default_velocity = SLOWER_SPEED
+                   
 
                     #we just found target
                     
@@ -105,6 +105,10 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                            isinstance(prev_down_dist, float) and\
                            abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
                             
+                            print("speed a step off : ", pc._default_velocity)
+                            print("passe a step on : ", abs(multiranger._down_distance - prev_down_dist))
+                            
+
                             pc.forward(0.05) #BIIG step
 
                             prev_down_dist = multiranger._down_distance #mesure distance OFF the box
@@ -123,6 +127,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                            isinstance(prev_down_dist, float) and\
                            abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
 
+                            print("passe a step off side : ", abs(multiranger._down_distance - prev_down_dist))
+
+
                             pc.back(BOX_SIZE/2 - OVERSHOT_DIST_SLOW_UP)
                             #corect coord for step up/down -> we know we are 15 more than detect
                             pc._x = x_detec + BOX_SIZE/2
@@ -138,6 +145,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         if isinstance(multiranger._down_distance, float) and\
                            isinstance(prev_down_dist, float) and\
                            abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
+
+                            print("passe a step on side : ", abs(multiranger._down_distance - prev_down_dist))
                             
                             y_step_off_side = pc._y
 
@@ -158,7 +167,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             #corect coord for step up/down
                             pc._y = y_step_off_side + BOX_SIZE/2
                             
-                            print("land_here")
+                            print("land on box now")
                             pc.land() #remoove when done
                             pc._default_velocity = FASTER_SPEED #back to normal speed ?? 
                             #state = next
