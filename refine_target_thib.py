@@ -21,11 +21,11 @@ run_once_refine_target = True
 
 DISTANCE_STANDART_STEP = 0.01 #m
 
-Z_DETEC_TRESHOLD = 0.07 #m
+Z_DETEC_TRESHOLD = 0.05 #m
 SLOWER_SPEED = 0.2
 FASTER_SPEED = 0.5
-OVERSHOT_DIST_FAST_DOWN = 0.1 #to measure
-OVERSHOT_DIST_SLOW_UP = 0.05  #to measure
+#OVERSHOT_DIST_FAST_DOWN = 0.1 #to measure
+OVERSHOT_DIST_SLOW_UP = 0.1  #to measure
 FASTER_SPEED = 0.5
 BOX_SIZE = 0.3
 
@@ -37,19 +37,33 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             #get from previous state
             incoming_target = "forward"
 
+            crt_print = 0
+
             while 1:
                 
+                crt_print += 1
+                if crt_print == 100:
+                    crt_print = 0
+                    print(state_refine_target)
+
                 #state == refine
                 if run_once_refine_target:
                     #inits
                     state_refine_target = State_refine_target.step_off
-                    prev_down_dist = multiranger._down_distance #mesure distance ON the box
+                    
                     x_detec = pc._x
                     #y_detec = pc._y
                     y_step_off_side = None
 
+                    prev_down_dist = multiranger._down_distance #mesure distance ON the box
+                    z_meas_ctr = 0
+
                     #end inits
                     run_once_refine_target = False
+                
+                if z_meas_ctr == 10:
+                    prev_down_dist = multiranger._down_distance
+                    z_meas_ctr = 0
 
                 if incoming_target == "forward":
                     #comming with large speed slow down
