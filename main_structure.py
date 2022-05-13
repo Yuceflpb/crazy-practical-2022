@@ -37,7 +37,7 @@ TOLERANCE_DIST = 2e-2 #2cm
 MOVING_DIST = 0.01
 OVERSHOOT_DIST = 0.05
 
-OBSTACLE_LIM =0.8 #Distance starting from which obstacle avoidance will be activated
+OBSTACLE_LIM =0.5 #Distance starting from which obstacle avoidance will be activated
 MAP_SECURITY_DIST = 0.8 #Distance starting from which the drone will avoid going in direction of the border
 
 SLOW= 0.3
@@ -156,7 +156,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     #partie Nico
                     if init: #Only done the first time going through this function
                         print('INIT SEARCH TARGET')
-                        if pc._y > Y_MIDDLE:  direction = RIGHT
+                        if pc._y < Y_MIDDLE:  direction = RIGHT
                         else : direction = LEFT
 
                         x_line_pos= pc._x
@@ -183,7 +183,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                                 pc.forward(OVERSHOOT_DIST, velocity=SLOW)
                             else:
                                 pc.back(OVERSHOOT_DIST, velocity=SLOW)
-                            pc.right(OBSTACLE_LIM) #The drone need to see the obstacle
+                            pc.right(OBSTACLE_LIM+OVERSHOOT_DIST*2) #The drone need to see the obstacle
 
                             obstacle = OVERTAKING # No obstacle to avoid anymore
                             
@@ -201,7 +201,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             if avoid_obstacle_on == BACK :  pc.forward(MOVING_DIST, velocity=SLOW)
                             elif avoid_obstacle_on == FRONT : pc.back(MOVING_DIST, velocity=SLOW)
                             
-                            if (x_line_pos-pc._x)< TOLERANCE_DIST:
+                            if abs(x_line_pos-pc._x)< TOLERANCE_DIST:
                                 avoid_obstacle_on = False
                                 obstacle = False
 
@@ -211,7 +211,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         
 
                         if (abs(Y_LIMRIGHT - pc._y)< TOLERANCE_DIST): # If has reached the right border of the map
-                            if first_crossing == True : direction=LEFT
+                            if first_crossing == True : 
+                                direction=LEFT
+                                first_crossing = False
                             else : direction = FRONT
                     
                     ## GOING <-                               
@@ -235,7 +237,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             else:
                                 pc.back(OVERSHOOT_DIST, velocity=SLOW)
                                 time.sleep(3)
-                            pc.left(OBSTACLE_LIM) #The drone need to see the obstacle
+                            pc.left(OBSTACLE_LIM+OVERSHOOT_DIST*2) #The drone need to see the obstacle
+                            time.sleep(1)
 
                             obstacle = OVERTAKING # No obstacle to avoid anymore
                             #avoid_obstacle_on = False
@@ -270,7 +273,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                         if (abs(Y_LIMLEFT - pc._y)< TOLERANCE_DIST): # If has reached the right border of the map
                             print('arrived at border')
-                            if first_crossing == True : direction=RIGHT
+                            if first_crossing == True : 
+                                direction=RIGHT
+                                first_crossing=False
                             else : direction = FRONT
                     
 
