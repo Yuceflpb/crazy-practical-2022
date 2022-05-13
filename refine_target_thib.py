@@ -91,7 +91,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     ##
 
                     #comming with large speed slow down
-                    pc._velocity = SLOWER_SPEED
+                    pc._default_velocity = SLOWER_SPEED
 
                     #we just found target
                     
