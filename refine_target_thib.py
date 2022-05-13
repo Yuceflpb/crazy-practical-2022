@@ -74,7 +74,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         pc.forward(DISTANCE_STANDART_STEP)
 
                         #go forward a bit until we step off target
-                        if abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
+                        if isinstance(multiranger._down_distance, float) and abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
                             
                             prev_down_dist = multiranger._down_distance #mesure distance OFF the box
 
@@ -88,7 +88,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         #go backward till target
                         pc.back(DISTANCE_STANDART_STEP)
 
-                        if abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
+                        if isinstance(multiranger._down_distance, float) and abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
                             pc.back(BOX_SIZE/2 - OVERSHOT_DIST_SLOW_UP)
                             #corect coord for step up/down -> we know we are 15 more than detect
                             pc._x = x_detec + BOX_SIZE/2
@@ -101,7 +101,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         pc.right(DISTANCE_STANDART_STEP)
 
                         #go sideway a bit until we step off target
-                        if abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
+                        if isinstance(multiranger._down_distance, float) and abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
                             
                             y_step_off_side = pc._y
                             prev_down_dist = multiranger._down_distance #mesure distance OFF the box
@@ -111,7 +111,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     elif state_refine_target == State_refine_target.step_back_on_side:
                         pc.left(DISTANCE_STANDART_STEP)
 
-                        if abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
+                        if isinstance(multiranger._down_distance, float) and abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
                             pc.left(BOX_SIZE/2 - OVERSHOT_DIST_SLOW_UP)
                             #corect coord for step up/down -> we know we are 15 more than detect
                             pc._y = y_step_off_side + BOX_SIZE/2
