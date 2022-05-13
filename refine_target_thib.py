@@ -91,13 +91,13 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     ##
 
                     #comming with large speed slow down
-                    pc._default_velocity = SLOWER_SPEED
+                    pc._velocity = SLOWER_SPEED
 
                     #we just found target
                     
                     if state_refine_target == State_refine_target.step_off:
                         #comming with large speed slow down
-                        pc._velocity = SLOWER_SPEED
+                        pc._default_velocity = SLOWER_SPEED
                         pc.forward(DISTANCE_STANDART_STEP)
 
                         #go forward a bit until we step off target
@@ -159,7 +159,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             pc._y = y_step_off_side + BOX_SIZE/2
                             
                             print("land_here")
-                            pc._default_velocity = FASTER_SPEED
+                            pc.land() #remoove when done
+                            pc._default_velocity = FASTER_SPEED #back to normal speed ?? 
                             #state = next
                     
 
