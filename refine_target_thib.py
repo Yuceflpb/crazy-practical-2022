@@ -70,7 +70,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                 if incoming_target == "forward":
 
-                    
+
                     #comming with large speed slow down
                     pc._default_velocity = SLOWER_SPEED
 
@@ -146,5 +146,12 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             print("land_here")
                             pc._default_velocity = FASTER_SPEED
                             #state = next
+                    
+
+                    #arret d'urgence
+                    if isinstance(multiranger._up_distance, float):
+                        if multiranger._up_distance < 0.2:
+                            print("landing : plafond")
+                            break
 
                 pass
