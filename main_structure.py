@@ -168,7 +168,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     
                     ## GOING ->
                     if direction==RIGHT: 
-                        print('Search RIGHT')
+                        #print('Search RIGHT')
                         if isinstance(multiranger._right_distance, float) and (multiranger._right_distance < OBSTACLE_LIM) : #OBSTACLE!
                             obstacle = GOING_SIDEWAY
                             if (abs(X_LIMFRONT-pc._x) < MAP_SECURITY_DIST) or (avoid_obstacle_on == BACK ):  #If has to avoid by going forward
@@ -218,7 +218,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     
                     ## GOING <-                               
                     if direction==LEFT: 
-                        print('Search LEFT')
+                        #print('Search LEFT')
                         if isinstance(multiranger._left_distance, float) and (multiranger._left_distance < OBSTACLE_LIM) : #OBSTACLE!
                             print('Obstacle LEFT')
                             obstacle = GOING_SIDEWAY
