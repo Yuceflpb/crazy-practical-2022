@@ -231,8 +231,10 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             print('Obstacle LEFT SIDEWAY')
                             if avoid_obstacle_on==FRONT:
                                 pc.forward(OVERSHOOT_DIST, velocity=SLOW)
+                                time.sleep(3)
                             else:
                                 pc.back(OVERSHOOT_DIST, velocity=SLOW)
+                                time.sleep(3)
                             pc.left(OBSTACLE_LIM) #The drone need to see the obstacle
 
                             obstacle = OVERTAKING # No obstacle to avoid anymore
@@ -245,7 +247,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             elif (avoid_obstacle_on == FRONT) and isinstance(multiranger._back_distance, float) and (multiranger._back_distance  < OBSTACLE_LIM) :
                                 pc.left(MOVING_DIST, velocity=SLOW)
                             else : #The obstacle has been overtaken
+                                
                                 pc.left(OVERSHOOT_DIST, velocity = SLOW)
+                                time.sleep(1)
                                 obstacle = GOING_BACK_ON_PATH
                         
                         elif obstacle== GOING_BACK_ON_PATH:
@@ -253,7 +257,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             if avoid_obstacle_on == BACK :  pc.forward(MOVING_DIST, velocity=SLOW)
                             elif avoid_obstacle_on == FRONT : pc.back(MOVING_DIST, velocity=SLOW)
                             
-                            if (x_line_pos-pc._x)< TOLERANCE_DIST:
+                            print('x_linepos=',x_line_pos,'pc x =', pc._x)
+
+                            if abs(x_line_pos-pc._x)< TOLERANCE_DIST:
                                 avoid_obstacle_on = False
                                 obstacle = False
 
