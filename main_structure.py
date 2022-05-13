@@ -72,6 +72,7 @@ z_box_init = 0#0.3 #on fait ca ??
 distance_to_go_back = 0 # Will record by how much the drone had to change its path to avoid obstacle
 counter_osbtacle = 0 
 counter = 0 # Counter which helps for goal search
+obstacle = None 
 
 cflib.crtp.init_drivers()
 
@@ -95,13 +96,13 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 
                 elif state == State.go_to_target_zone:
                     if init:
-                        print('fait le init!')
+                        print('fait le init target zone!')
                         obstacle_in_front = False
                         init=False
 
                     #partie yucef
 
-                    if(pc._x > 3.5):
+                    if(pc._x > 1.5): #CHANGEMENT POUR VOIR SI CA MARCHE, REMETTRE 3.5 après coup!!
                         state = State.search_target
                         init = True
 
@@ -154,6 +155,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 elif state == State.search_target:
                     #partie Nico
                     if init: #Only done the first time going through this function
+                        print('INIT SEARCH TARGET')
                         if pc._y > Y_MIDDLE:  direction = RIGHT
                         else : direction = LEFT
 
@@ -162,10 +164,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         avoid_obstacle_on = False # Will define on which side obstacle avoidance is done
                         first_crossing = True
                         init = False
+                        print('Arrive a la fin du init')
                     
                     ## GOING ->
                     if direction==RIGHT: 
-                        
+                        print('Search RIGHT')
                         if isinstance(multiranger._right_distance, float) and (multiranger._right_distance < OBSTACLE_LIM) : #OBSTACLE!
                             obstacle = GOING_SIDEWAY
                             if (abs(X_LIMFRONT-pc._x) < MAP_SECURITY_DIST) or (avoid_obstacle_on == BACK ):  #If has to avoid by going forward
@@ -203,6 +206,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                                 obstacle = False
 
                         else: #If no obstacle, or that the obstacle avoidance has been done
+                            print('no obstacle')
                             pc.right(MOVING_DIST, velocity=SLOW)
                         
 
@@ -212,6 +216,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     
                     ## GOING <-                               
                     if direction==LEFT: 
+                        print('Search LEFT')
                         if isinstance(multiranger._left_distance, float) and (multiranger._left_distance < OBSTACLE_LIM) : #OBSTACLE!
                             obstacle = GOING_SIDEWAY
                             if (abs(X_LIMFRONT-pc._x) < MAP_SECURITY_DIST) or (avoid_obstacle_on == BACK ):  #If has to avoid by going forward
