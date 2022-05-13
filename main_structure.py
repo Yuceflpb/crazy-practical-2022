@@ -58,7 +58,7 @@ Y_LIMRIGHT = 0
 Y_MIDDLE =1.5
 Y_LIMLEFT = 3
 
-SEARCH_MARGIN = 20 # Number oftime the drone will go forward before doing another side search
+SEARCH_MARGIN = 40 # Number oftime the drone will go forward before doing another side search
 
 
 # URI to the Crazyflie to connect to
