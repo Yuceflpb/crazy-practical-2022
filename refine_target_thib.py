@@ -39,6 +39,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     with PositionHlCommander(scf, default_velocity=0.4) as pc:
         with Multiranger(scf) as multiranger:
             
+            time.sleep(2)
+
             #get from previous state
             incoming_target = "forward" #-> pour ca faire un dir = forward, left ou back plutot que de tout changer
 
