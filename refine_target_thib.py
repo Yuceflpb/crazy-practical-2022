@@ -12,6 +12,8 @@ cflib.crtp.init_drivers()
 from enum import Enum
 
 class State_refine_target(Enum):
+    begin = -1
+    
     step_off = 0
     step_back_on = 1
     step_off_side = 2
@@ -49,7 +51,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 #state == refine
                 if run_once_refine_target:
                     #inits
-                    state_refine_target = State_refine_target.step_off
+                    #state_refine_target = State_refine_target.step_off
+                    state_refine_target = State_refine_target.begin
                     
                     x_detec = pc._x
                     #y_detec = pc._y
@@ -66,10 +69,26 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     z_meas_ctr = 0
 
                 if incoming_target == "forward":
+
+                    
                     #comming with large speed slow down
                     pc._default_velocity = SLOWER_SPEED
 
+                    ##
+                    if state_refine_target == State_refine_target.begin:
+                        pc.forward(DISTANCE_STANDART_STEP)
+
+                        if isinstance(multiranger._down_distance, float) and\
+                           isinstance(prev_down_dist, float) and\
+                           abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:                       
+
+                            prev_down_dist = multiranger._down_distance #mesure distance ON the box
+
+                            state_refine_target = State_refine_target.step_off
+                    ##
+
                     #we just found target
+                    
                     if state_refine_target == State_refine_target.step_off:
                         pc.forward(DISTANCE_STANDART_STEP)
 
