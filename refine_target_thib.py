@@ -33,7 +33,7 @@ BOX_SIZE = 0.3
 
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
-    with PositionHlCommander(scf) as pc:
+    with PositionHlCommander(scf, default_velocity=0.4) as pc:
         with Multiranger(scf) as multiranger:
             
             #get from previous state
@@ -98,7 +98,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     
                     if state_refine_target == State_refine_target.step_off:
                         #comming with large speed slow down
-                        pc.set_default_velocity(SLOWER_SPEED)
+                        pc.set_default_velocity(SLOWER_SPEED)#a mettre dans linit apres
                         pc.forward(DISTANCE_STANDART_STEP)
 
                         #go forward a bit until we step off target
@@ -107,9 +107,10 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                            abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
                             
                             print("passe a step on : ", abs(multiranger._down_distance - prev_down_dist))
-                            time.sleep(1)
+                            
 
-                            pc.forward(0.05) #BIIG step
+                            pc.forward(0.1, velocity=0.1) #BIIG step
+                            time.sleep(1)
 
                             prev_down_dist = multiranger._down_distance #mesure distance OFF the box
 
@@ -129,9 +130,10 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                             print("passe a step off side : ", abs(multiranger._down_distance - prev_down_dist))
 
-                            time.sleep(1)
+                            
 
-                            pc.back(BOX_SIZE/2 - OVERSHOT_DIST_SLOW_UP)
+                            pc.back(BOX_SIZE/2 - OVERSHOT_DIST_SLOW_UP, velocity=0.1)
+                            time.sleep(1)
                             #corect coord for step up/down -> we know we are 15 more than detect
                             pc._x = x_detec + BOX_SIZE/2
                             
@@ -149,11 +151,12 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                             print("passe a step on side : ", abs(multiranger._down_distance - prev_down_dist))
                             
-                            time.sleep(1)
+                            
 
                             y_step_off_side = pc._y
 
-                            pc.right(0.1) #BIIG step
+                            pc.right(0.1, velocity=0.1) #BIIG step
+                            time.sleep(1)
 
                             prev_down_dist = multiranger._down_distance #mesure distance OFF the box
                             
@@ -168,7 +171,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                             time.sleep(1)
 
-                            pc.left(BOX_SIZE/2 - OVERSHOT_DIST_SLOW_UP)
+                            pc.left(BOX_SIZE/2 - OVERSHOT_DIST_SLOW_UP, velocity=0.1)
+                            time.sleep(1)
                             #corect coord for step up/down
                             pc._y = y_step_off_side + BOX_SIZE/2
                             
