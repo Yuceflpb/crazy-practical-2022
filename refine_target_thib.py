@@ -24,10 +24,10 @@ class State_refine_target(Enum):
 DISTANCE_STANDART_STEP = 0.01 #m
 
 Z_DETEC_TRESHOLD = 0.08 #m
-SLOWER_SPEED = 0.2
+SLOWER_SPEED = 0.1
 FASTER_SPEED = 0.5
 #OVERSHOT_DIST_FAST_DOWN = 0.1 #to measure
-OVERSHOT_DIST_SLOW_UP = 0.1  #to measure
+OVERSHOT_DIST_SLOW_UP = 0.05  #to measure
 FASTER_SPEED = 0.5
 BOX_SIZE = 0.3
 
@@ -129,16 +129,16 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                            abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
 
                             print("passe a step off side : ", abs(multiranger._down_distance - prev_down_dist))
-
                             
-
+                            time.sleep(1)
                             pc.back(BOX_SIZE/2 - OVERSHOT_DIST_SLOW_UP, velocity=0.1)
                             print("on est bon en x")
                             time.sleep(1)
+
                             #corect coord for step up/down -> we know we are 15 more than detect
-                            print("juste avant")
-                            pc._x = x_detec + BOX_SIZE/2
-                            print("juste après")
+                            #print("juste avant")
+                            #pc._x = x_detec + BOX_SIZE/2 ca ca bug
+                            #print("juste après")
 
                             prev_down_dist = multiranger._down_distance #mesure distance ON the box
 
@@ -177,7 +177,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             pc.left(BOX_SIZE/2 - OVERSHOT_DIST_SLOW_UP, velocity=0.1)
                             time.sleep(1)
                             #corect coord for step up/down
-                            pc._y = y_step_off_side + BOX_SIZE/2
+                            #pc._y = y_step_off_side + BOX_SIZE/2 ca ca bug
                             
                             print("land on box now")
                             pc.land() #remoove when done
