@@ -233,7 +233,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                                 pc.forward(OVERSHOOT_DIST, velocity=SLOW)
                             else:
                                 pc.back(OVERSHOOT_DIST, velocity=SLOW)
-                            pc.right(OBSTACLE_LIM) #The drone need to see the obstacle
+                            pc.left(OBSTACLE_LIM) #The drone need to see the obstacle
 
                             obstacle = OVERTAKING # No obstacle to avoid anymore
                             #avoid_obstacle_on = False
