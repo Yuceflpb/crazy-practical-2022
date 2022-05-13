@@ -23,7 +23,7 @@ class State_refine_target(Enum):
 
 DISTANCE_STANDART_STEP = 0.01 #m
 
-MAX_CTR_Z_MEAS = 15
+MAX_CTR_Z_MEAS = 7
 Z_DETEC_TRESHOLD = 0.05 #m
 SLOWER_SPEED = 0.1
 FASTER_SPEED = 0.5
