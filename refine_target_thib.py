@@ -23,13 +23,16 @@ class State_refine_target(Enum):
 
 DISTANCE_STANDART_STEP = 0.01 #m
 
-Z_DETEC_TRESHOLD = 0.08 #m
+MAX_CTR_Z_MEAS = 15
+Z_DETEC_TRESHOLD = 0.07 #m
 SLOWER_SPEED = 0.1
 FASTER_SPEED = 0.5
 #OVERSHOT_DIST_FAST_DOWN = 0.1 #to measure
-OVERSHOT_DIST_SLOW_UP = 0.05  #to measure
+OVERSHOT_DIST_SLOW_UP = 0.1  #to measure
 FASTER_SPEED = 0.5
 BOX_SIZE = 0.3
+
+MAX_CRT_PRINT = 20
 
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
@@ -45,14 +48,18 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
             while 1:
                 
+                ##debuging
                 crt_print += 1
-                if crt_print == 20:
+                if crt_print == MAX_CRT_PRINT:
                     crt_print = 0
                     print(state_refine_target)
+                ##debuging end
 
-                #state == refine
+                #overall state == refine
+
+                ##INITS##
                 if run_once_refine_target:
-                    #inits
+                    ##--inits--##
                     #state_refine_target = State_refine_target.step_off
                     state_refine_target = State_refine_target.begin
                     
@@ -66,18 +73,18 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     #pc._velocity = SLOWER_SPEED #dans linit
 
 
-                    #end inits
+                    ##--end inits--##
                     run_once_refine_target = False
                 
                 z_meas_ctr += 1
-                if z_meas_ctr == 10:
+                if z_meas_ctr == MAX_CTR_Z_MEAS:
                     prev_down_dist = multiranger._down_distance
                     z_meas_ctr = 0
                 
 
                 if incoming_target == "forward":
 
-                    ##
+                    ##debuging
                     if state_refine_target == State_refine_target.begin:
                         pc.forward(DISTANCE_STANDART_STEP)                     
                         
@@ -85,20 +92,20 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                            isinstance(prev_down_dist, float) and\
                            abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:               
                                   
-                            print("passe a step off : ", abs(multiranger._down_distance - prev_down_dist))
+                            print("passe a step off")
 
-
+                            pc.set_default_velocity(SLOWER_SPEED)#a mettre dans linit apres
+                            time.sleep(1)
                             prev_down_dist = multiranger._down_distance #mesure distance ON the box
 
                             state_refine_target = State_refine_target.step_off
-                    ##
+                    ##debuging end
                    
 
                     #we just found target
                     
                     if state_refine_target == State_refine_target.step_off:
                         #comming with large speed slow down
-                        pc.set_default_velocity(SLOWER_SPEED)#a mettre dans linit apres
                         pc.forward(DISTANCE_STANDART_STEP)
 
                         #go forward a bit until we step off target
@@ -106,9 +113,10 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                            isinstance(prev_down_dist, float) and\
                            abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
                             
-                            print("passe a step on : ", abs(multiranger._down_distance - prev_down_dist))
                             
-
+                            print("passe a step on")
+                            time.sleep(1)
+                        
                             pc.forward(0.1, velocity=0.1) #BIIG step
                             time.sleep(1)
 
@@ -153,10 +161,10 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                            abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:
 
                             print("passe a step on side : ", abs(multiranger._down_distance - prev_down_dist))
-                            
+                            time.sleep(1)
                             
 
-                            y_step_off_side = pc._y
+                            y_step_off_side = pc._y 
 
                             pc.right(0.1, velocity=0.1) #BIIG step
                             time.sleep(1)
