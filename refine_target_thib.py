@@ -21,7 +21,7 @@ class State_refine_target(Enum):
 
 DISTANCE_STANDART_STEP = 0.01 #m
 
-Z_DETEC_TRESHOLD = 0.05 #m
+Z_DETEC_TRESHOLD = 0.08 #m
 SLOWER_SPEED = 0.2
 FASTER_SPEED = 0.5
 #OVERSHOT_DIST_FAST_DOWN = 0.1 #to measure
