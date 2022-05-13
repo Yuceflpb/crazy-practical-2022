@@ -137,15 +137,15 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 elif state == State.take_off_from_target:
                     pc.take_off()
                     state = State.go_to_base_loc
-                    state_backward = finding_x
+                    state_backward = state.FINDING_X
                     pass
 
                 elif state == State.go_to_base_loc:
                    
-                    
-                    if(state_backward == FINDING_X):
+                    #
+                    if(state_backward == state.FINDING_X):
                         if(pc._x < x_init):
-                            state_backward= FINDING_Y
+                            state_backward= state.FINDING_Y
                             if(pc._y > y_init):
                                 right_side = True
                             else:
