@@ -44,7 +44,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             while 1:
                 
                 crt_print += 1
-                if crt_print == 50:
+                if crt_print == 20:
                     crt_print = 0
                     print(state_refine_target)
 
@@ -64,25 +64,23 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     #end inits
                     run_once_refine_target = False
                 
+                z_meas_ctr += 1
                 if z_meas_ctr == 10:
                     prev_down_dist = multiranger._down_distance
                     z_meas_ctr = 0
+                
 
                 if incoming_target == "forward":
-                    print("in big loop")
 
                     ##
                     if state_refine_target == State_refine_target.begin:
-                        pc.forward(DISTANCE_STANDART_STEP)
-                        
-                        print("in begin")
+                        pc.forward(DISTANCE_STANDART_STEP)                     
                         
                         if isinstance(multiranger._down_distance, float) and\
                            isinstance(prev_down_dist, float) and\
                            abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:                       
                             
-                            if abs(multiranger._down_distance - prev_down_dist) > 0.02:
-                                print("diff dist : ", abs(multiranger._down_distance - prev_down_dist))
+
 
                             prev_down_dist = multiranger._down_distance #mesure distance ON the box
 
