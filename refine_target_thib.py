@@ -19,8 +19,6 @@ class State_refine_target(Enum):
     step_off_side = 2
     step_back_on_side = 3
 
-run_once_refine_target = True
-
 DISTANCE_STANDART_STEP = 0.01 #m
 
 Z_DETEC_TRESHOLD = 0.05 #m
@@ -39,12 +37,14 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             #get from previous state
             incoming_target = "forward"
 
+            run_once_refine_target = True
+
             crt_print = 0
 
             while 1:
                 
                 crt_print += 1
-                if crt_print == 100:
+                if crt_print == 50:
                     crt_print = 0
                     print(state_refine_target)
 
@@ -58,8 +58,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     #y_detec = pc._y
                     y_step_off_side = None
 
-                    prev_down_dist = multiranger._down_distance #mesure distance ON the box
-                    z_meas_ctr = 0
+                    prev_down_dist = multiranger._down_distance #mesure distance OFF the box
+                    z_meas_ctr = 0 #counter
 
                     #end inits
                     run_once_refine_target = False
@@ -69,23 +69,28 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     z_meas_ctr = 0
 
                 if incoming_target == "forward":
-
-
-                    #comming with large speed slow down
-                    pc._default_velocity = SLOWER_SPEED
+                    print("in big loop")
 
                     ##
                     if state_refine_target == State_refine_target.begin:
                         pc.forward(DISTANCE_STANDART_STEP)
-
+                        
+                        print("in begin")
+                        
                         if isinstance(multiranger._down_distance, float) and\
                            isinstance(prev_down_dist, float) and\
                            abs(multiranger._down_distance - prev_down_dist) >= Z_DETEC_TRESHOLD:                       
+                            
+                            if abs(multiranger._down_distance - prev_down_dist) > 0.02:
+                                print("diff dist : ", abs(multiranger._down_distance - prev_down_dist))
 
                             prev_down_dist = multiranger._down_distance #mesure distance ON the box
 
                             state_refine_target = State_refine_target.step_off
                     ##
+
+                    #comming with large speed slow down
+                    pc._default_velocity = SLOWER_SPEED
 
                     #we just found target
                     
