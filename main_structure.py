@@ -45,7 +45,6 @@ cflib.crtp.init_drivers()
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     with PositionHlCommander(scf, x= x_init, y=y_init, z = z_box_init) as pc:
-    #with PositionHlCommander(scf, x= x_init, y=y_init, z = z_box_init ,controller=PositionHlCommander.CONTROLLER_MELLINGER) as pc:
         with Multiranger(scf) as multiranger:
             ##---INITS---##
 
