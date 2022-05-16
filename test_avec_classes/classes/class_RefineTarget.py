@@ -1,13 +1,10 @@
-from enum import Enum
 from time import time
-from turtle import forward
-from xmlrpc.client import Boolean
 
 from classes.class_State import State #attention peut etre confli de nom entre la classe et l'enum
-
 import classes.my_magic_numbers as mn
 from classes.my_enum import Direction
 
+from enum import Enum
 class State_refine_target(Enum):
     step_off = 0
     step_back_on = 1
@@ -18,19 +15,15 @@ class State_refine_target(Enum):
 #inherit from State classe
 class RefineTarget(State):
     def __init__(self, scf, pc, multiranger):
-
         super().__init__(scf, pc, multiranger)
 
         self.state_rt = State_refine_target.step_off
 
         self.direction_comming = None
         self.coord_target_detec = None #tuple
-        #self.y_detec = None
-        #self.x_step_off_side = None
         self.coord_step_off_side = None #tuple
         self.prev_down_dist = None
         self.z_meas_ctr = 0
-
 
         pass
     
@@ -48,8 +41,6 @@ class RefineTarget(State):
         """
 
         self.measure_down_every_nb_step()
-
-        ##maybe do state begin to try it from ground
 
         if self.state_rt == State_refine_target.step_off:
             self.step_off()
