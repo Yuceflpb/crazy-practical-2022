@@ -170,6 +170,66 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     if direction==RIGHT: 
                         #print('Search RIGHT')
                         if isinstance(multiranger._right_distance, float) and (multiranger._right_distance < OBSTACLE_LIM) : #OBSTACLE!
+                            print('Obstacle Right')
+                            obstacle = GOING_SIDEWAY
+                            if (abs(X_LIMFRONT-pc._x) < MAP_SECURITY_DIST) or (avoid_obstacle_on == BACK ):  #If has to avoid by going forward
+                                pc.back(MOVING_DIST, velocity=SLOW)
+                                avoid_obstacle_on = BACK                                                             
+                            else : 
+                                pc.forward(MOVING_DIST, velocity=SLOW)
+                                avoid_obstacle_on = FRONT
+
+                        elif obstacle==GOING_SIDEWAY : #After the drone doesnt see obstacle it still must go a little bit further
+                            print('Obstacle RIGHT SIDEWAY')
+                            if avoid_obstacle_on==FRONT:
+                                pc.forward(OVERSHOOT_DIST, velocity=SLOW)
+                                time.sleep(3)
+                            else:
+                                pc.back(OVERSHOOT_DIST, velocity=SLOW)
+                                time.sleep(3)
+                            pc.right(OBSTACLE_LIM+OVERSHOOT_DIST*2) #The drone need to see the obstacle
+                            time.sleep(1)
+
+                            obstacle = OVERTAKING # No obstacle to avoid anymore
+                            #avoid_obstacle_on = False
+
+                        elif obstacle == OVERTAKING :
+                            print('Obstacle LEFT OVERTAKING')
+                            if (avoid_obstacle_on == BACK) and isinstance(multiranger._front_distance, float) and (multiranger._front_distance < OBSTACLE_LIM) :
+                                pc.right(MOVING_DIST, velocity=SLOW)
+                            elif (avoid_obstacle_on == FRONT) and isinstance(multiranger._back_distance, float) and (multiranger._back_distance  < OBSTACLE_LIM) :
+                                pc.right(MOVING_DIST, velocity=SLOW)
+                            else : #The obstacle has been overtaken
+                                
+                                pc.right(OVERSHOOT_DIST, velocity = SLOW)
+                                time.sleep(1)
+                                obstacle = GOING_BACK_ON_PATH
+                        
+                        elif obstacle== GOING_BACK_ON_PATH:
+                            print('Obstacle going back on path')
+                            if avoid_obstacle_on == BACK :  pc.forward(MOVING_DIST, velocity=SLOW)
+                            elif avoid_obstacle_on == FRONT : pc.back(MOVING_DIST, velocity=SLOW)
+                            
+                            print('x_linepos=',x_line_pos,'pc x =', pc._x)
+
+                            if abs(x_line_pos-pc._x)< TOLERANCE_DIST:
+                                avoid_obstacle_on = False
+                                obstacle = False
+
+                        else: #If no obstacle, and there were none previous loop as well
+                            #print('No Obstacle!!!!')
+                            pc.right(MOVING_DIST, velocity=SLOW)
+                        
+
+                        if (abs(Y_LIMRIGHT - pc._y)< TOLERANCE_DIST): # If has reached the right border of the map
+                            print('arrived at border')
+                            if first_crossing == True : 
+                                direction=LEFT
+                                first_crossing=False
+                            else : direction = FRONT
+
+                        #BEWLO OLD VERSION OF "RIGHT"
+                        """ if isinstance(multiranger._right_distance, float) and (multiranger._right_distance < OBSTACLE_LIM) : #OBSTACLE!
                             obstacle = GOING_SIDEWAY
                             if (abs(X_LIMFRONT-pc._x) < MAP_SECURITY_DIST) or (avoid_obstacle_on == BACK ):  #If has to avoid by going forward
                                 pc.back(MOVING_DIST, velocity=SLOW)
@@ -217,7 +277,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             if first_crossing == True : 
                                 direction=LEFT
                                 first_crossing = False
-                            else : direction = FRONT
+                            else : direction = FRONT """
                     
                     ## GOING <-                               
                     if direction==LEFT: 
