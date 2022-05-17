@@ -35,7 +35,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             state = State.debug_refine_target #define the one we want to debug
 
             #state classes inits
-            refine_target = RefineTarget()
+            refine_target = RefineTarget(scf, pc, multiranger)
 
             #to enter run once if statement
             run_once_refine_target = True
