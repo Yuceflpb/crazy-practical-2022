@@ -41,8 +41,8 @@ class State(Enum):
     right_side = 0
     left_side = 1
 
-    _overshoot = 20
-    _dist_along = 50
+    _forward_overshoot = 20
+    _along_overshoot = 20
 
     avoiding = -2
     along = -3
@@ -50,11 +50,10 @@ class State(Enum):
 TOLERANCE_DIST = 2e-2 #2cm
 
 class obstacle_avoidance():
-    def __init__(self, overshoot=enum._overshoot):
+    def __init__(self, overshoot=enum._forward_overshoot):
         self.overshoot = overshoot
     #contexte: bas haut
     def avoid_forward(self,avoiding_side,pc, cntr_vect):
-
         #obstacle toujours en face? 
         #si oui: obstacle_in_front = True; incr = 0; droite ou gauche
         if(isinstance(multiranger._front_distance, float) and multiranger._front_distance < 0.4):
@@ -67,13 +66,13 @@ class obstacle_avoidance():
             return [0,0]
 
         # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
-        elif(cntr_vect[0]==self.overshoot):
+        elif(cntr_vect[0]==overshoot):
             pc.forward(enum._dist_along)
             cntr_vect[1]+=1
             return cntr_vect
         
         #en train de coulisser le long de l'obstacle step 1
-        elif(cntr_vect[0]<self.overshoot):
+        elif(cntr_vect[0]<):
             if avoiding_side == enum.right_side:
                 pc.right(0.01)
             else:
@@ -92,37 +91,7 @@ class obstacle_avoidance():
             return [enum.overshoot,enum.along]
 
     
-        #to test: if no obstacle forward, else function. 
-        
-
-            
-            
-        #si incrementation pas finie alors on incremente cntr et on va a droite ou gauche
-        else:
-            if avoiding_side == enum.right_side:
-                pc.right(0.01)
-            else:
-                pc.left(0.01)
-
-
-        #si non -> si incr = overshoot : si oui incr=-1 incr+=1
-
-
-        elif obstacle_in_front:
-            incr = incr +1
-
-            if incr == 0:
-                obstacle_in_front = False   
-        else:
-            pc.forward(0.01)
-        
-        return 
-    
-    def avoid_backward:
-
-    def avoid_rightward:
-
-    def avoid_leftward:
+        #to test: if no obstacle forward, else function.
 
 
 class long_snail: 
@@ -139,16 +108,6 @@ class long_snail:
             forward_state=False
             incr=0
         elif(incr<self.L):
-            if(obstacle_state)
-    
-    def obstacle_
-
-
-        
-
-    def haut_bas(self, sensor_back): 
-
-    def obstacle_avoidance
 
 # URI to the Crazyflie to connect to
 uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E770')
