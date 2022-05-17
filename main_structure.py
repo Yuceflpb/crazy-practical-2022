@@ -9,6 +9,7 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.positioning.position_hl_commander import PositionHlCommander
 from cflib.utils.multiranger import Multiranger
 from cflib.utils import uri_helper
+from cflib.positioning.motion_commander import MotionCommander
 
 import time
 
@@ -351,6 +352,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             else : direction = LEFT
 
                             counter = 0
+                            x_line_pos=pc._x
 
 
                     ## GOING v 
