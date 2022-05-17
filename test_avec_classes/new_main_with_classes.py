@@ -31,6 +31,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             
             #---ONE TIME INITIALIZATION---#
             
+            #wait to stabilize
+            time.sleep(2)
+
             #init state
             state = State.debug_refine_target #define the one we want to debug
 
@@ -82,7 +85,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 #debug states
                 elif state == State.debug_refine_target:
                     print("enter debug")
-                    time.sleep(2)
+                    
 
                     pc.forward(mn.DISTANCE_STANDART_STEP)
                     
