@@ -1,6 +1,8 @@
 
 
 
+import enum
+from turtle import forward
 import cflib.crtp
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
@@ -31,8 +33,122 @@ class State(Enum):
 
     error = -1
 
+    forward = 1
+    backward = 2
+    toright = 3
+    toleft = 4
+
+    right_side = 0
+    left_side = 1
+
+    _overshoot = 20
+    _dist_along = 50
+
+    avoiding = -2
+    along = -3
+
 TOLERANCE_DIST = 2e-2 #2cm
 
+class obstacle_avoidance():
+    def __init__(self, overshoot=enum._overshoot):
+        self.overshoot = overshoot
+    #contexte: bas haut
+    def avoid_forward(self,avoiding_side,pc, cntr_vect):
+
+        #obstacle toujours en face? 
+        #si oui: obstacle_in_front = True; incr = 0; droite ou gauche
+        if(isinstance(multiranger._front_distance, float) and multiranger._front_distance < 0.4):
+            #MEMOIRE DE LA POSITION EN X POUR Y REVENIR 
+            if avoiding_side == enum.right_side:
+                pc.right(0.01)
+            else:
+                pc.left(0.01)
+            #si obstacle mais pas en overshoot : cntr = 0.
+            return [0,0]
+
+        # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
+        elif(cntr_vect[0]==self.overshoot):
+            pc.forward(enum._dist_along)
+            cntr_vect[1]+=1
+            return cntr_vect
+        
+        #en train de coulisser le long de l'obstacle step 1
+        elif(cntr_vect[0]<self.overshoot):
+            if avoiding_side == enum.right_side:
+                pc.right(0.01)
+            else:
+                pc.left(0.01)
+            cntr_vect[0]+=1
+            cntr_vect[1]=0
+            return cntr_vect
+        
+        elif(cntr_vect[1]!=0 and cntr_vect<enum.along):
+            #contexte: bas a haut
+            pc.forward(0.01)
+            cntr_vect[1]+=1
+            return cntr_vect
+        
+        elif(cntr_vect[1]==enum.along):
+            return [enum.overshoot,enum.along]
+
+    
+        #to test: if no obstacle forward, else function. 
+        
+
+            
+            
+        #si incrementation pas finie alors on incremente cntr et on va a droite ou gauche
+        else:
+            if avoiding_side == enum.right_side:
+                pc.right(0.01)
+            else:
+                pc.left(0.01)
+
+
+        #si non -> si incr = overshoot : si oui incr=-1 incr+=1
+
+
+        elif obstacle_in_front:
+            incr = incr +1
+
+            if incr == 0:
+                obstacle_in_front = False   
+        else:
+            pc.forward(0.01)
+        
+        return 
+    
+    def avoid_backward:
+
+    def avoid_rightward:
+
+    def avoid_leftward:
+
+
+class long_snail: 
+    #Longueur_voie est en mm ; obstacle_state True si obstacle
+    def __init__(self, pos_land_estim, way_lenght, margin, way_width, forward_state, obstacle_state): 
+        self.pos = pos_land_estim
+        self.L=Longueur_voie
+        self.marge = marge
+        self.largeur=largeur_voie
+    
+    def bas_haut(self, sensor_front):
+        incr=0
+        if(incr==self.L):
+            forward_state=False
+            incr=0
+        elif(incr<self.L):
+            if(obstacle_state)
+    
+    def obstacle_
+
+
+        
+
+    def haut_bas(self, sensor_back): 
+
+    def obstacle_avoidance
 
 # URI to the Crazyflie to connect to
 uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E770')
@@ -284,3 +400,5 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     if multiranger._up_distance < 0.2:
                         print("landing : plafond")
                         break
+
+
