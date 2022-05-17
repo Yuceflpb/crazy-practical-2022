@@ -1,4 +1,4 @@
-from time import time
+import time
 
 from classes.class_State import State #attention peut etre confli de nom entre la classe et l'enum
 import classes.my_magic_numbers as mn
