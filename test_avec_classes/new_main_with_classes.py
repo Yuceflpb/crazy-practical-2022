@@ -63,6 +63,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                 #localize precisely the center of the box
                 elif state == State.refine_target:
+                    print("ici")
                     if run_once_refine_target:
                         run_once_refine_target = False
                         #one time inits
@@ -82,7 +83,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 elif state == State.debug_refine_target:
                     
                     time.sleep(2)
-                    
+
                     pc.forward(mn.DISTANCE_STANDART_STEP)
                     direction_comming = Direction.forward #test with other
 
