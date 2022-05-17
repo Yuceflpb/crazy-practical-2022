@@ -68,8 +68,11 @@ class RefineTarget(State):
             self.z_meas_ctr = 0
     
     def step_detection(self):
-        #implement and replace
-        return True
+        step_detected = isinstance(self.multiranger._down_distance, float) and\
+                        isinstance(self.prev_down_dist, float) and\
+                        abs(self.multiranger._down_distance - self.prev_down_dist) >= mn.Z_DETEC_TRESHOLD
+        
+        return step_detected
 
     def step_off(self):
         #go in the direction of comming
@@ -80,9 +83,7 @@ class RefineTarget(State):
         elif self.direction_comming == Direction.right:
             self.pc.right(mn.DISTANCE_STANDART_STEP)
 
-        if isinstance(self.multiranger._down_distance, float) and\
-           isinstance(self.prev_down_dist, float) and\
-           abs(self.multiranger._down_distance - self.prev_down_dist) >= mn.Z_DETEC_TRESHOLD:
+        if self.step_detection():
 
             print("I just stepped off")
             #time to stabilize
@@ -115,9 +116,7 @@ class RefineTarget(State):
         elif self.direction_comming == Direction.right:
             self.pc.left(mn.DISTANCE_STANDART_STEP)
         
-        if isinstance(self.multiranger._down_distance, float) and\
-           isinstance(self.prev_down_dist, float) and\
-           abs(self.multiranger._down_distance - self.prev_down_dist) >= mn.Z_DETEC_TRESHOLD:
+        if self.step_detection():
             
             print("I just stepped back on")
             #time to stabilize
@@ -151,9 +150,7 @@ class RefineTarget(State):
         elif self.direction_comming == Direction.right:
             self.pc.forward(mn.DISTANCE_STANDART_STEP)
 
-        if isinstance(self.multiranger._down_distance, float) and\
-           isinstance(self.prev_down_dist, float) and\
-           abs(self.multiranger._down_distance - self.prev_down_dist) >= mn.Z_DETEC_TRESHOLD:
+        if self.step_detection():
 
             print("I just stepped off on the side")
 
@@ -190,9 +187,7 @@ class RefineTarget(State):
         elif self.direction_comming == Direction.right:
             self.pc.back(mn.DISTANCE_STANDART_STEP)
         
-        if isinstance(self.multiranger._down_distance, float) and\
-           isinstance(self.prev_down_dist, float) and\
-           abs(self.multiranger._down_distance - self.prev_down_dist) >= mn.Z_DETEC_TRESHOLD:
+        if self.step_detection():
             
             print("I just stepped back on from the side")
             #time to stabilize
