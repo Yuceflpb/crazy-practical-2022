@@ -84,7 +84,6 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                 #debug states
                 elif state == State.debug_refine_target:
-                    print("enter debug")
                     
 
                     pc.left(mn.DISTANCE_STANDART_STEP)
