@@ -39,6 +39,9 @@ class RefineTarget(State):
         """
         perform one step on the state refine target
         """
+        ##
+        print("dans le state : ", self.pc._x)
+        ##
 
         self.measure_down_every_nb_step()
 

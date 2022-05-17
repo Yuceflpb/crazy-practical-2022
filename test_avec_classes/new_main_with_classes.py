@@ -66,7 +66,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                 #localize precisely the center of the box
                 elif state == State.refine_target:
-                    print("ici")
+                    print("hors du state", pc._x)
                     if run_once_refine_target:
                         run_once_refine_target = False
                         #one time inits
