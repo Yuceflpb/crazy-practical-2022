@@ -24,6 +24,7 @@ class RefineTarget(State):
         self.coord_step_off_side = None #tuple
         self.prev_down_dist = None
         self.z_meas_ctr = 0
+        self.security_ctr_step_off = 0
 
         pass
     
@@ -40,13 +41,14 @@ class RefineTarget(State):
         perform one step on the state refine target
         """
         ##
-        print("dans le state : ", self.pc._x)
+        #print("dans le state : ", self.pc._x)
         ##
 
         self.measure_down_every_nb_step()
 
         if self.state_rt == State_refine_target.step_off:
             self.step_off()
+            #ajouter securiter si il overshoot en step on
         elif self.state_rt == State_refine_target.step_back_on:
             self.step_back_on()
         elif self.state_rt == State_refine_target.step_off_side:
@@ -86,7 +88,10 @@ class RefineTarget(State):
         elif self.direction_comming == Direction.right:
             self.pc.right(mn.DISTANCE_STANDART_STEP)
 
-        if self.step_detection():
+        #security if the overshoot with fast speed goes beyond the box
+        self.security_ctr_step_off += 1
+
+        if self.step_detection() or self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
 
             print("I just stepped off")
             #time to stabilize
