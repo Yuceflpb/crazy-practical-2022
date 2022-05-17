@@ -81,12 +81,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                 #debug states
                 elif state == State.debug_refine_target:
-                    
+                    print("enter debug")
                     time.sleep(2)
 
                     pc.forward(mn.DISTANCE_STANDART_STEP)
-                    direction_comming = Direction.forward #test with other
-
+                    
                     z_meas_ctr += 1
                     if z_meas_ctr == mn.MAX_CTR_Z_MEAS:
                         z_meas_ctr = 0
@@ -100,8 +99,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                         #stabilize
                         time.sleep(mn.WAITING_TIME)
+                        print("after debug")
 
-                        state = State.refine_target                    
+                        state = State.refine_target
+                        direction_comming = Direction.forward #test with other  
+                        print("state updated")                  
 
                 #arret d'urgence
                 if isinstance(multiranger._up_distance, float) and multiranger._up_distance < 0.2:
