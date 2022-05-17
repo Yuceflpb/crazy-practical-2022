@@ -80,7 +80,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                 #debug states
                 elif state == State.debug_refine_target:
-
+                    
+                    time.sleep(2)
+                    
                     pc.forward(mn.DISTANCE_STANDART_STEP)
                     direction_comming = Direction.forward #test with other
 
