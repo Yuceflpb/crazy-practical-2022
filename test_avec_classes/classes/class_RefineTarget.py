@@ -155,7 +155,7 @@ class RefineTarget(State):
             print("I just stepped off on the side")
 
             #register coordinates of step of side
-            self.coord_step_off_side = (self.py._x, self.pc._y)
+            self.coord_step_off_side = (self.pc._x, self.pc._y)
 
             #time to stabilize
             time.sleep(mn.WAITING_TIME)
