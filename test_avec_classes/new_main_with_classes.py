@@ -87,7 +87,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     print("enter debug")
                     
 
-                    pc.forward(mn.DISTANCE_STANDART_STEP)
+                    pc.left(mn.DISTANCE_STANDART_STEP)
                     
                     z_meas_ctr += 1
                     if z_meas_ctr == mn.MAX_CTR_Z_MEAS:
@@ -105,7 +105,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         print("after debug")
 
                         state = State.refine_target
-                        direction_comming = Direction.forward #test with other  
+                        direction_comming = Direction.left #test with other  
                         print("state updated")                  
 
                 #arret d'urgence
