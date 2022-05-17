@@ -45,14 +45,17 @@ cflib.crtp.init_drivers()
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     with PositionHlCommander(scf, x= x_init, y=y_init, z = z_box_init) as pc:
-    #with PositionHlCommander(scf, x= x_init, y=y_init, z = z_box_init ,controller=PositionHlCommander.CONTROLLER_MELLINGER) as pc:
         with Multiranger(scf) as multiranger:
-            #faire les inits
+            ##---INITS---##
+
+            #coriger le yaw ??
 
             state = State.take_off_from_base
 
-            init = True
+            run_once_go_to_target = True
 
+
+            ##---INFINITE LOOP---##
             while 1:
                 #print('state=',state)
                 if state == State.take_off_from_base:
@@ -61,22 +64,24 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     pass
                 
                 elif state == State.go_to_target_zone:
-                    if init:
-                        print('fait le init!')
+                    if run_once_go_to_target:
                         obstacle_in_front = False
-                        init=False
 
-                    #partie yucef
+                        #set the run once to false
+                        run_once_go_to_target=False
 
                     if(pc._x > 3.5):
                         state = State.search_target
                     else:
                         y_position= pc._y
-                        if isinstance(multiranger._down_distance, float) and multiranger._front_distance < 0.4:
-                            print('distnace=', multiranger._front_distance)
+                        if isinstance(multiranger._front_distance, float) and multiranger._front_distance < 0.4: #capteur bug
+
+                            #probleme si on arrive du coté gauche de l'obs (cylindre) et quon veux aller a droite -> colision
+                            #  -> maybe check le capteur de coté avant d'y aller (on dans un if juste après)
+
+                            print('distance = ', multiranger._front_distance)
                             incr = 0
                             obstacle_in_front = True
-                            #print("on est dans le while obstacle")
                             if y_position > 1.5:
                                 pc.right(0.01)
                             else:
@@ -92,28 +97,6 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else:
                             pc.forward(0.01)
                         
-                        
-                        
-                        
-                        
-          
-                        
-                        
-                        
-                            
-                            
-                    
-                    #if obs
-                    
-                        #if y > 2.5
-                            #esquive a droite de 0.01 ou plus ? continuer un moment ??
-                        #else
-                            #esquive a gauche
-                    #else
-                        #tout droit de 0.01
-                    
-                    #if 1: #if x > 0.4
-                    #    state = State.search_target
                     pass
                 
                 elif state == State.search_target:
@@ -203,12 +186,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 else:
                     print("unknown state")
 
-                #init = False #la boucle init se fait qu'une fois
-
+                #arret d'urgence
                 if isinstance(multiranger._up_distance, float):
                     if multiranger._up_distance < 0.2:
                         print("landing : plafond")
                         break
-                        #print("land : ", pc._x) 
-                        #pc._x = 0.33
-                        #print("land : ", pc._x)
