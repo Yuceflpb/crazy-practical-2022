@@ -38,7 +38,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
             #init state
             #state = State.debug_refine_target #define the one we want to debug
-            state = State.debug_go_to_base_loc
+            #state = State.debug_go_to_base_loc
+            state = State.go_to_target_zone
 
             #state classes inits
             refine_target = RefineTarget(scf, pc, multiranger)
@@ -72,6 +73,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 
                 
                 elif state == State.go_to_target_zone:
+                    '''
                     if(pc._x < 3.5):
                         if((self.multiranger._front_distance, float) and (self.multiranger._front_distance < mn.THRESHOLD_SENSOR) or cntr_vect[3] = True):
                             if(pc._y > 1.5):
@@ -82,7 +84,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             pc.forward(DISTANCE_STANDART_STEP)
                     else:
                         state = State.search_target
-                        
+                    '''
+                    if((isinstance(multiranger._right_distance, float) and (multiranger._right_distance < mn.THRESHOLD_SENSOR)) or cntr_vect[3] == True):
+                        cntr_vect = obstacle_step.avoid_right_side(avoiding_side = Direction.back, cntr_vect = cntr_vect, U_trajectory = True)
+                    else:
+                        pc.right(mn.DISTANCE_STANDART_STEP)
                         
                         
                         
