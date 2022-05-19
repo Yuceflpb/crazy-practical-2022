@@ -17,6 +17,7 @@ class State(Enum):
     error = -1
 
     debug_refine_target = -3
+    debug_go_to_base_loc = -8
 
 class Direction(Enum):
     forward = 0

@@ -39,8 +39,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
             #init state
             #state = State.debug_refine_target #define the one we want to debug
-            #state = State.debug_go_to_base_loc
-            state = State.go_to_target_zone
+            state = State.debug_go_to_base_loc
+            #state = State.go_to_target_zone
 
             #state classes inits
             refine_target = RefineTarget(scf, pc, multiranger)
@@ -116,19 +116,18 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                 elif state == State.go_to_base_loc:
                     dir = go_to_base_loc.step()
-                    if not isinstance(dir, None):
-                        if dir == -1:
-                            state = state.search_base
-                        else:     
-                            direction_comming = dir
-                            state = State.refine_base
+                    if isinstance(dir, int): #-1
+                        state = state.search_base
+                    elif isinstance(dir, Direction) :    
+                        direction_comming = dir
+                        state = State.refine_base
                 
                 elif state == State.search_base:
                     print("in state search base")
                     pass
                 
                 elif state == State.refine_base:
-                    print("in state refine base")
+                    #print("in state refine base")
                     if run_once_refine_base:
                         run_once_refine_base = False
                         refine_target.run_once(direction_comming) #reuse of the class
