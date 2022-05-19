@@ -20,10 +20,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
         #pc.forward(1)
         with Multiranger(scf) as multiranger:
             time.sleep(2)
+            meas = []
             for i in range(100):
                 i+=1
                 pc.forward(0.01)
-                meas = []
+    
                 if isinstance(multiranger._down_distance, float):
                     meas.append(multiranger._down_distance)
 
@@ -34,10 +35,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         break
             pc.land()
 
-            
+
             axis = np.arange(len(meas))
-            ax, fig = plt.subplot(1)
-            ax = plt.plot(axis, meas)
+            plt.plot(axis, meas)
             plt.show()
 
 
