@@ -27,6 +27,8 @@ cflib.crtp.init_drivers()
 x_init = 0
 y_init = 0
 z_box_init = 0
+init = True
+counter_zig_zag = 0
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     with PositionHlCommander(scf, x= x_init, y=y_init, z = z_box_init) as pc:
@@ -40,7 +42,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             #init state
             #state = State.debug_refine_target #define the one we want to debug
             #state = State.debug_go_to_base_loc
-            state = State.go_to_target_zone
+            #state = State.go_to_target_zone
+            state = State.search_target
 
             #state classes inits
             refine_target = RefineTarget(scf, pc, multiranger)
@@ -116,7 +119,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         if (isinstance(multiranger._right_distance, float) and multiranger._right_distance < mn.THRESHOLD_SENSOR):
                             cntr_vect = obstacle_step.avoid_right_side(avoiding_side = Direction.forward, cntr_vect = cntr_vect, U_trajectory = True)
                         else : 
-                            pc.right(mn.DISTANCE_STANDART_STEP, velocity=mn.SLOWER_SPEED)
+                            pc.right(mn.DISTANCE_STANDART_STEP)
                         
                         if (abs(mn.Y_LIMRIGHT - pc._y)< mn.TOLERANCE_DIST): # If has reached the right border of the map
                             print('arrived at border')
@@ -129,7 +132,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         if (isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR):
                             cntr_vect = obstacle_step.avoid_left_side(avoiding_side = Direction.forward, cntr_vect = cntr_vect, U_trajectory = True)
                         else : 
-                            pc.left(mn.DISTANCE_STANDART_STEP, velocity=mn.SLOWER_SPEED)
+                            pc.left(mn.DISTANCE_STANDART_STEP)
                         
                         if (abs(mn.Y_LIMLEFT - pc._y)< mn.TOLERANCE_DIST): # If has reached the right border of the map
                             print('arrived at border')
@@ -138,14 +141,14 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                                 first_crossing=False
                             else : direction = direction.forward
                         
-                    elif direction == Direction.front:
-                        pc.forward(mn.DISTANCE_STANDART_STEP, velocity=mn.SLOWER_SPEED)
-                        counter += 1
-                        if counter == mn.ZIG_ZAG_MARGIN:
+                    elif direction == Direction.forward:
+                        pc.forward(mn.DISTANCE_STANDART_STEP)
+                        counter_zig_zag += 1
+                        if counter_zig_zag == mn.ZIG_ZAG_MARGIN:
                             if pc._y > mn.Y_MIDDLE: direction = direction.right
                             else : direction = direction.left
 
-                            counter = 0
+                            counter_zig_zag = 0
                             x_line_pos=pc._x
 
 
