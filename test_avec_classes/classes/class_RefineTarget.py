@@ -106,7 +106,7 @@ class RefineTarget(State):
         self.security_ctr_step_off += 1
 
         if self.step_detection() or self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
-            print("difference step = ", abs(self.multiranger._down_distance - self.prev_down_dist))
+            #print("difference step = ", abs(self.multiranger._down_distance - self.prev_down_dist))
             print("I just stepped off")
             #time to stabilize
             time.sleep(mn.WAITING_TIME)
@@ -125,7 +125,8 @@ class RefineTarget(State):
             time.sleep(mn.WAITING_TIME)
 
             #mesure distance OFF the box
-            self.prev_down_dist = self.multiranger._down_distance 
+            self.prev_down_dist = self.multiranger._down_distance
+            self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
 
             #update state refine target
             self.state_rt = State_refine_target.step_back_on
@@ -166,6 +167,7 @@ class RefineTarget(State):
 
             #measure distance ON the box
             self.prev_down_dist = self.multiranger._down_distance
+            self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
 
             self.state_rt = State_refine_target.step_off_side
         pass
@@ -206,7 +208,8 @@ class RefineTarget(State):
             time.sleep(mn.WAITING_TIME)
 
             #mesure distance OFF the box
-            self.prev_down_dist = self.multiranger._down_distance 
+            self.prev_down_dist = self.multiranger._down_distance
+            self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
 
             #update state refine target
             self.state_rt = State_refine_target.step_back_on_side
