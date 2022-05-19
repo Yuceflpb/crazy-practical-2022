@@ -87,6 +87,8 @@ class RefineTarget(State):
             self.pc.left(mn.DISTANCE_STANDART_STEP)
         elif self.direction_comming == Direction.right:
             self.pc.right(mn.DISTANCE_STANDART_STEP)
+        elif self.direction_comming == Direction.back:
+            self.pc.back(mn.DISTANCE_STANDART_STEP)
 
         #security if the overshoot with fast speed goes beyond the box
         self.security_ctr_step_off += 1
@@ -104,6 +106,8 @@ class RefineTarget(State):
                 self.pc.left(mn.BIG_STEP)
             elif self.direction_comming == Direction.right:
                 self.pc.right(mn.BIG_STEP)
+            elif self.direction_comming == Direction.back:
+                self.pc.back(mn.BIG_STEP)
 
             #maybe not necessary
             time.sleep(mn.WAITING_TIME)
@@ -123,6 +127,9 @@ class RefineTarget(State):
             self.pc.right(mn.DISTANCE_STANDART_STEP)
         elif self.direction_comming == Direction.right:
             self.pc.left(mn.DISTANCE_STANDART_STEP)
+        elif self.direction_comming == Direction.back:
+            self.pc.forward(mn.DISTANCE_STANDART_STEP)
+
         
         if self.step_detection():
             
@@ -136,6 +143,8 @@ class RefineTarget(State):
                 self.pc.right(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
             elif self.direction_comming == Direction.right:
                 self.pc.left(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
+            elif self.direction_comming == Direction.back:
+                self.pc.forward(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
 
             print("on est bon en incomming direction")
             #time to stabilize
@@ -157,6 +166,9 @@ class RefineTarget(State):
             self.pc.forward(mn.DISTANCE_STANDART_STEP)
         elif self.direction_comming == Direction.right:
             self.pc.forward(mn.DISTANCE_STANDART_STEP)
+        elif self.direction_comming == Direction.back:
+            self.pc.right(mn.DISTANCE_STANDART_STEP)
+
 
         if self.step_detection():
 
@@ -175,6 +187,8 @@ class RefineTarget(State):
                 self.pc.forward(mn.BIG_STEP)
             elif self.direction_comming == Direction.right:
                 self.pc.forward(mn.BIG_STEP)
+            elif self.direction_comming == Direction.back:
+                self.pc.right(mn.BIG_STEP)
 
             #maybe not necessary
             time.sleep(mn.WAITING_TIME)
@@ -194,6 +208,9 @@ class RefineTarget(State):
             self.pc.back(mn.DISTANCE_STANDART_STEP)
         elif self.direction_comming == Direction.right:
             self.pc.back(mn.DISTANCE_STANDART_STEP)
+        elif self.direction_comming == Direction.back:
+            self.pc.left(mn.DISTANCE_STANDART_STEP)
+
         
         if self.step_detection():
             
@@ -207,6 +224,8 @@ class RefineTarget(State):
                 self.pc.back(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
             elif self.direction_comming == Direction.right:
                 self.pc.back(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
+            elif self.direction_comming == Direction.back:
+                self.pc.left(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
 
             print("on va atterir ici")
             

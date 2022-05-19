@@ -13,6 +13,7 @@ import classes.my_magic_numbers as mn
 
 #imports of classes
 from classes.class_RefineTarget import RefineTarget
+from classes.class_GoToBaseLoc import GoToBaseLoc
 
 
 # URI to the Crazyflie to connect to
@@ -35,13 +36,17 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             time.sleep(2)
 
             #init state
-            state = State.debug_refine_target #define the one we want to debug
+            #state = State.debug_refine_target #define the one we want to debug
+            state = State.debug_go_to_base_loc
 
             #state classes inits
             refine_target = RefineTarget(scf, pc, multiranger)
+            go_to_base_loc = GoToBaseLoc(scf, pc, multiranger, x_init, y_init)
+            # refine_base = RefineTarget(scf, pc, multiranger) #normalement on peux reprendre l'autre object
 
             #to enter run once if statement
             run_once_refine_target = True
+            run_once_refine_base = True
 
             #other variables
             direction_comming = None
@@ -81,6 +86,34 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     print("landed")
                     break
 
+                elif state == State.go_to_base_loc:
+                    dir = go_to_base_loc.step()
+                    if not isinstance(dir, None):
+                        if dir == -1:
+                            state = state.search_base
+                        else:     
+                            direction_comming = dir
+                            state = State.refine_base
+                
+                elif state == State.search_base:
+                    print("in state search base")
+                    pass
+                
+                elif state == State.refine_base:
+                    print("in state refine base")
+                    if run_once_refine_base:
+                        run_once_refine_base = False
+                        refine_target.run_once(direction_comming) #reuse of the class
+                    finish = refine_target.step()
+                    if finish:
+                        state = State.landing_base
+
+                elif state == State.landing_base:
+                    print("finish with the demo")
+                    pc.land()
+                    print("!!!!!")
+                    break
+
 
                 #debug states
                 elif state == State.debug_refine_target:
@@ -105,7 +138,14 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                         state = State.refine_target
                         direction_comming = Direction.forward #test with other  
-                        print("state updated")                  
+                        print("state updated") 
+
+
+                elif state == State.debug_go_to_base_loc: 
+                    pc.go_to(3,2)
+                    time.sleep(2)
+                    state = State.go_to_base_loc
+                    print("finish debug-init : testing...")            
 
                 #arret d'urgence
                 if isinstance(multiranger._up_distance, float) and multiranger._up_distance < 0.2:
