@@ -5,7 +5,7 @@ from cflib.positioning.position_hl_commander import PositionHlCommander
 from cflib.utils.multiranger import Multiranger
 from cflib.utils import uri_helper
 
-import class_obstacle_avoidance
+
 import time
 
 
@@ -15,6 +15,7 @@ import classes.my_magic_numbers as mn
 #imports of classes
 from classes.class_RefineTarget import RefineTarget
 from classes.class_GoToBaseLoc import GoToBaseLoc
+from classes.class_obstacle_avoidance import Obstacle_avoidance_step
 
 
 # URI to the Crazyflie to connect to
@@ -46,7 +47,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             go_to_base_loc = GoToBaseLoc(scf, pc, multiranger, x_init, y_init)
             # refine_base = RefineTarget(scf, pc, multiranger) #normalement on peux reprendre l'autre object
             
-            obstacle_step = obstacle_avoidance_step(scf, pc, multiranger)
+            obstacle_step = Obstacle_avoidance_step(scf, pc, multiranger)
 
             #to enter run once if statement
             run_once_refine_target = True

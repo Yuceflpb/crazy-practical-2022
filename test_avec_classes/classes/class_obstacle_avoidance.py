@@ -12,7 +12,7 @@ class State_refine_target(Enum):
     step_back_on_side = 3
 
 
-class obstacle_avoidance_step(State):
+class Obstacle_avoidance_step(State):
     def __init__(self, scf, pc, multiranger):
         super().__init__(scf, pc, multiranger)
         self.preshoot = mn.PRESHOOT
