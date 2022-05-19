@@ -41,73 +41,17 @@ class State(Enum):
     right_side = 0
     left_side = 1
 
-    _forward_overshoot = 20
-    _along_overshoot = 20
+    overshoot = 50
+    preshoot = 50
 
     avoiding = -2
     along = -3
 
+
+
 TOLERANCE_DIST = 2e-2 #2cm
 
-class obstacle_avoidance():
-    def __init__(self, overshoot=enum._forward_overshoot):
-        self.overshoot = overshoot
-    #contexte: bas haut
-    def avoid_forward(self,avoiding_side,pc, cntr_vect):
-        #obstacle toujours en face? 
-        #si oui: obstacle_in_front = True; incr = 0; droite ou gauche
-        if(isinstance(multiranger._front_distance, float) and multiranger._front_distance < 0.4):
-            #MEMOIRE DE LA POSITION EN X POUR Y REVENIR 
-            if avoiding_side == enum.right_side:
-                pc.right(0.01)
-            else:
-                pc.left(0.01)
-            #si obstacle mais pas en overshoot : cntr = 0.
-            return [0,0]
 
-        # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
-        elif(cntr_vect[0]==overshoot):
-            pc.forward(enum._dist_along)
-            cntr_vect[1]+=1
-            return cntr_vect
-        
-        #en train de coulisser le long de l'obstacle step 1
-        elif(cntr_vect[0]<):
-            if avoiding_side == enum.right_side:
-                pc.right(0.01)
-            else:
-                pc.left(0.01)
-            cntr_vect[0]+=1
-            cntr_vect[1]=0
-            return cntr_vect
-        
-        elif(cntr_vect[1]!=0 and cntr_vect<enum.along):
-            #contexte: bas a haut
-            pc.forward(0.01)
-            cntr_vect[1]+=1
-            return cntr_vect
-        
-        elif(cntr_vect[1]==enum.along):
-            return [enum.overshoot,enum.along]
-
-    
-        #to test: if no obstacle forward, else function.
-
-
-class long_snail: 
-    #Longueur_voie est en mm ; obstacle_state True si obstacle
-    def __init__(self, pos_land_estim, way_lenght, margin, way_width, forward_state, obstacle_state): 
-        self.pos = pos_land_estim
-        self.L=Longueur_voie
-        self.marge = marge
-        self.largeur=largeur_voie
-    
-    def bas_haut(self, sensor_front):
-        incr=0
-        if(incr==self.L):
-            forward_state=False
-            incr=0
-        elif(incr<self.L):
 
 # URI to the Crazyflie to connect to
 uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E770')
