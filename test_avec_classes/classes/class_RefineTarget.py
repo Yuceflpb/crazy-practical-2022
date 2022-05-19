@@ -27,7 +27,7 @@ class RefineTarget(State):
         #self.z_meas_ctr = 0
         self.security_ctr_step_off = 0
 
-        self.mean_down_dist = None
+        self.array_down_dist = None
 
         pass
     
@@ -37,7 +37,7 @@ class RefineTarget(State):
         self.prev_down_dist = self.multiranger._down_distance
         self.pc.set_default_velocity(mn.SLOWER_SPEED)
 
-        self.mean_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
+        self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
         
         pass
 
@@ -72,10 +72,12 @@ class RefineTarget(State):
     #---HELPER FUNCTIONS---#
 
     def measure_down_update_mean(self):
-        np.roll(self.mean_down_dist, 1)
-        self.mean_down_dist[0] = self.multiranger._down_distance
-        
-        self.prev_down_dist = np.mean(self.mean_down_dist)
+        np.roll(self.array_down_dist, 1)
+        self.array_down_dist[0] = self.multiranger._down_distance
+
+        self.prev_down_dist = np.mean(self.array_down_dist)
+
+        print(self.prev_down_dist)
         
         # self.z_meas_ctr += 1
         # if self.z_meas_ctr == mn.MAX_CTR_Z_MEAS:
@@ -104,7 +106,7 @@ class RefineTarget(State):
         self.security_ctr_step_off += 1
 
         if self.step_detection() or self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
-
+            print("difference step = ", abs(self.multiranger._down_distance - self.prev_down_dist))
             print("I just stepped off")
             #time to stabilize
             time.sleep(mn.WAITING_TIME)
