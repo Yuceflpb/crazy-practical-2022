@@ -23,7 +23,7 @@ class obstacle_avoidance_step():
     #a l'exterieur: obstacle_step n'est appelé QUE quand un objet est DEJA detecté, sinon il va faire nimp. 
     # output : cntr_vect = [cntr1, cntr2, cntr3, manoeuvre_bool]
     # U_trajectory : sert a decider si on sort apres une traj en U ou en L (demander tutur si besoin)
-    def avoid_forward(self, pc, avoiding_side, cntr_vect, U_trajectory = True):
+    def avoid_forward(self, pc, avoiding_side, cntr_vect, U_trajectory):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
         if(not(cntr_vect[3])):
             self.line_pos_y = self.pc._y
@@ -69,12 +69,9 @@ class obstacle_avoidance_step():
             if(cntr_vect[1]<self.preshoot): 
                 self.pc.forward(mn.DISTANCE_STANDART_STEP)
                 cntr_vect[1]+=1
-            elif(cntr_vect[1]==self.preshoot and 
-                ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) or
-                (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR))): 
+            elif(cntr_vect[1]==self.preshoot and ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) or (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR))): 
                 self.pc.forward(mn.DISTANCE_STANDART_STEP)
-            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR)
-                 and cntr_vect[2]<self.overshoot):
+            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < THRESHOLD_SENSOR) and cntr_vect[2]<self.overshoot):
                 self.pc.forward(mn.DISTANCE_STANDART_STEP)
                 cntr_vect[2]+=1
 
@@ -82,7 +79,6 @@ class obstacle_avoidance_step():
             if(U_trajectory):
                 if((abs(self.pc.y-self.line_pos_y)<TOLERANCE_DIST)):
                     cntr_vect = [0,0,0,0]
-    #               cntr_vect[3]=False
                     return cntr_vect
                 else:
                     if(avoiding_side == Direction.right): 
@@ -94,10 +90,13 @@ class obstacle_avoidance_step():
     #           cntr_vect[3]=False
                 return cntr_vect
     
+        else
+            print("probleme dans les if")
+            cntr_vect = [0,0,0,0]
+            return cntr_vect
     
     
-    
-    def avoid_backward(self, pc, avoiding_side, cntr_vect, U_trajectory = True):
+    def avoid_backward(self, pc, avoiding_side, cntr_vect, U_trajectory):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
         if(not(cntr_vect[3])):
             self.line_pos_y = self.pc._y
@@ -147,8 +146,7 @@ class obstacle_avoidance_step():
                 ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < THRESHOLD_SENSOR) or
                 (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < THRESHOLD_SENSOR))): 
                 self.pc.backward(DISTANCE_STANDART_STEP)
-            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < THRESHOLD_SENSOR)
-                    and cntr_vect[2]<self.overshoot):
+            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < THRESHOLD_SENSOR) and cntr_vect[2]<self.overshoot):
                 self.pc.backward(DISTANCE_STANDART_STEP)
                 cntr_vect[2]+=1
 
@@ -167,10 +165,13 @@ class obstacle_avoidance_step():
                 cntr_vect = [0,0,0,0]
     #           cntr_vect[3]=False
                 return cntr_vect
+        else
+            print("probleme dans les if")
+            cntr_vect = [0,0,0,0]
+            return cntr_vect
 
 
-
-    def avoid_right_side(self, pc, avoiding_side, cntr_vect, U_trajectory = True):
+    def avoid_right_side(self, pc, avoiding_side, cntr_vect, U_trajectory):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
         if(not(cntr_vect[3])):
             self.line_pos_x = self.pc._x
@@ -241,10 +242,13 @@ class obstacle_avoidance_step():
     #           cntr_vect[3]=False
                 return cntr_vect
 
+        else
+            print("probleme dans les if")
+            cntr_vect = [0,0,0,0]
+            return cntr_vect
+        
 
-
-
-    def avoid_left_side(self, pc, avoiding_side, cntr_vect, U_trajectory = True):
+    def avoid_left_side(self, pc, avoiding_side, cntr_vect, U_trajectory):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
         if(not(cntr_vect[3])):
             self.line_pos_x = self.pc._x
@@ -314,3 +318,7 @@ class obstacle_avoidance_step():
                 cntr_vect = [0,0,0,0]
     #           cntr_vect[3]=False
                 return cntr_vect
+        else
+            print("probleme dans les if")
+            cntr_vect = [0,0,0,0]
+            return cntr_vect
