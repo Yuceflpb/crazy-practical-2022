@@ -17,5 +17,13 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
         #pc.forward(1)
     with Multiranger(scf) as multiranger:
         while True:
-            if isinstance(multiranger._down_distance, float):
-                print(multiranger._down_distance)
+            if isinstance(multiranger._front_distance, float):
+                print('front' , multiranger._front_distance)
+            if isinstance(multiranger._back_distance, float):
+                print('back' , multiranger._back_distance)
+            if isinstance(multiranger._left_distance, float):
+                print('left' , multiranger._left_distance)
+            if isinstance(multiranger._right_distance, float):
+                print('right' , multiranger._right_distance)
+            time.sleep(2)
+            print(' ')
