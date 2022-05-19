@@ -1,4 +1,5 @@
 import time
+import numpy as np
 
 from classes.class_State import State #attention peut etre confli de nom entre la classe et l'enum
 import classes.my_magic_numbers as mn
@@ -23,8 +24,10 @@ class RefineTarget(State):
         self.coord_target_detec = None #tuple
         self.coord_step_off_side = None #tuple
         self.prev_down_dist = None
-        self.z_meas_ctr = 0
+        #self.z_meas_ctr = 0
         self.security_ctr_step_off = 0
+
+        self.mean_down_dist = None
 
         pass
     
@@ -33,6 +36,8 @@ class RefineTarget(State):
         self.coord_target_detec = (self.pc._x,self.pc._y)
         self.prev_down_dist = self.multiranger._down_distance
         self.pc.set_default_velocity(mn.SLOWER_SPEED)
+
+        self.mean_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
         
         pass
 
@@ -44,7 +49,7 @@ class RefineTarget(State):
         #print("dans le state : ", self.pc._x)
         ##
 
-        self.measure_down_every_nb_step()
+        self.measure_down_update_mean()
 
         if self.state_rt == State_refine_target.step_off:
             self.step_off()
@@ -66,11 +71,16 @@ class RefineTarget(State):
 
     #---HELPER FUNCTIONS---#
 
-    def measure_down_every_nb_step(self):
-        self.z_meas_ctr += 1
-        if self.z_meas_ctr == mn.MAX_CTR_Z_MEAS:
-            self.prev_down_dist = self.multiranger._down_distance
-            self.z_meas_ctr = 0
+    def measure_down_update_mean(self):
+        np.roll(self.mean_down_dist, 1)
+        self.mean_down_dist[0] = self.multiranger._down_distance
+        
+        self.prev_down_dist = np.mean(self.mean_down_dist)
+        
+        # self.z_meas_ctr += 1
+        # if self.z_meas_ctr == mn.MAX_CTR_Z_MEAS:
+        #     self.prev_down_dist = self.multiranger._down_distance
+        #     self.z_meas_ctr = 0
     
     def step_detection(self):
         step_detected = isinstance(self.multiranger._down_distance, float) and\
