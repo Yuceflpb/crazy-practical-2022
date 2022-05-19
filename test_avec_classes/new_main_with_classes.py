@@ -74,28 +74,84 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 
                 
                 elif state == State.go_to_target_zone:
-                    '''
+                    
                     if(pc._x < 3.5):
-                        if((self.multiranger._front_distance, float) and (self.multiranger._front_distance < mn.THRESHOLD_SENSOR) or cntr_vect[3] = True):
+                        if ((multiranger._front_distance, float) and (multiranger._front_distance < mn.THRESHOLD_SENSOR) or cntr_vect[3] == True) :
                             if(pc._y > 1.5):
-                                cntr_vect = obstacle_step.avoid_forward(avoiding_side = Direction.right, cntr_vect, U_trajectory = False)
+                                cntr_vect = obstacle_step.avoid_forward(avoiding_side = Direction.right, cntr_vect = cntr_vect, U_trajectory = False)
                             else:
-                                cntr_vect = obstacle_step.avoid_forward(avoiding_side = Direction.left, cntr_vect, U_trajectory = False)
+                                cntr_vect = obstacle_step.avoid_forward(avoiding_side = Direction.left, cntr_vect = cntr_vect, U_trajectory = False)
                         else:
-                            pc.forward(DISTANCE_STANDART_STEP)
+                            pc.forward(mn.DISTANCE_STANDART_STEP)
                     else:
                         state = State.search_target
+                        init = True
+                    
                     '''
                     if((isinstance(multiranger._right_distance, float) and (multiranger._right_distance < mn.THRESHOLD_SENSOR)) or cntr_vect[3] == True):
                         cntr_vect = obstacle_step.avoid_right_side(avoiding_side = Direction.back, cntr_vect = cntr_vect, U_trajectory = True)
                     else:
                         pc.right(mn.DISTANCE_STANDART_STEP)
+                    '''
                         
                         
                         
-                elif state == State.search_target:
-                    #implement
-                    direction_comming = Direction.forward
+                elif state == State.search_target:   
+                    #detection edge
+                    # go dans landing     
+                    if init: #Only done the first time going through this function
+                        print('INIT SEARCH TARGET')
+                        if pc._y < mn.Y_MIDDLE:  direction = Direction.right
+                        else : direction = Direction.left
+
+                        x_line_pos= pc._x
+
+                        #avoid_obstacle_on = False # Will define on which side obstacle avoidance is done
+                        first_crossing = True
+                        init = False
+                        print('Arrive a la fin du init')
+                    
+                    ## GOING ->
+                    if direction== Direction.right: 
+                        if (isinstance(multiranger._right_distance, float) and multiranger._right_distance < mn.THRESHOLD_SENSOR):
+                            cntr_vect = obstacle_step.avoid_right_side(avoiding_side = Direction.forward, cntr_vect = cntr_vect, U_trajectory = True)
+                        else : 
+                            pc.right(mn.DISTANCE_STANDART_STEP, velocity=mn.SLOWER_SPEED)
+                        
+                        if (abs(mn.Y_LIMRIGHT - pc._y)< mn.TOLERANCE_DIST): # If has reached the right border of the map
+                            print('arrived at border')
+                            if first_crossing == True : 
+                                direction=direction.left
+                                first_crossing=False
+                            else : direction = direction.forward
+                    
+                    elif direction == Direction.left:
+                        if (isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR):
+                            cntr_vect = obstacle_step.avoid_left_side(avoiding_side = Direction.forward, cntr_vect = cntr_vect, U_trajectory = True)
+                        else : 
+                            pc.left(mn.DISTANCE_STANDART_STEP, velocity=mn.SLOWER_SPEED)
+                        
+                        if (abs(mn.Y_LIMLEFT - pc._y)< mn.TOLERANCE_DIST): # If has reached the right border of the map
+                            print('arrived at border')
+                            if first_crossing == True : 
+                                direction=direction.right
+                                first_crossing=False
+                            else : direction = direction.forward
+                        
+                    elif direction == Direction.front:
+                        pc.forward(mn.DISTANCE_STANDART_STEP, velocity=mn.SLOWER_SPEED)
+                        counter += 1
+                        if counter == mn.ZIG_ZAG_MARGIN:
+                            if pc._y > mn.Y_MIDDLE: direction = direction.right
+                            else : direction = direction.left
+
+                            counter = 0
+                            x_line_pos=pc._x
+
+
+
+                   
+                    
 
                 #localize precisely the center of the box
                 elif state == State.refine_target:
