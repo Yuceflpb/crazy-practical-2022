@@ -1,10 +1,10 @@
 
 from classes.class_State import State
-from my_enum import Direction
+from classes.my_enum import Direction
 
 from enum import Enum
 
-import my_magic_numbers as mn
+import classes.my_magic_numbers as mn
 
 class State_gtbl(Enum):
     horiz = 0
