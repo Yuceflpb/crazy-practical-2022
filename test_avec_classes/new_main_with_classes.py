@@ -5,6 +5,7 @@ from cflib.positioning.position_hl_commander import PositionHlCommander
 from cflib.utils.multiranger import Multiranger
 from cflib.utils import uri_helper
 
+import class_obstacle_avoidance
 import time
 
 
@@ -43,6 +44,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             refine_target = RefineTarget(scf, pc, multiranger)
             go_to_base_loc = GoToBaseLoc(scf, pc, multiranger, x_init, y_init)
             # refine_base = RefineTarget(scf, pc, multiranger) #normalement on peux reprendre l'autre object
+            
+            obstacle_step = obstacle_avoidance_step(scf, pc, multiranger)
 
             #to enter run once if statement
             run_once_refine_target = True
@@ -55,6 +58,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             prev_down_dist = multiranger._down_distance
             z_meas_ctr = 0
             
+            cntr_vect = [0,0,0,0]
+            
 
 
 
@@ -64,7 +69,23 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 if state == State.take_off_from_base:
                     #implement
                     pass
-
+                
+                
+                elif state == State.go_to_target_zone:
+                    if(pc._x < 3.5):
+                        if((self.multiranger._front_distance, float) and (self.multiranger._front_distance < mn.THRESHOLD_SENSOR) or cntr_vect[3] = True):
+                            if(pc._y > 1.5):
+                                cntr_vect = obstacle_step.avoid_forward(avoiding_side = Direction.right, cntr_vect, U_trajectory = False)
+                            else:
+                                cntr_vect = obstacle_step.avoid_forward(avoiding_side = Direction.left, cntr_vect, U_trajectory = False)
+                        else:
+                            pc.forward(DISTANCE_STANDART_STEP)
+                    else:
+                        state = State.search_target
+                        
+                        
+                        
+                        
                 elif state == State.search_target:
                     #implement
                     direction_comming = Direction.forward
