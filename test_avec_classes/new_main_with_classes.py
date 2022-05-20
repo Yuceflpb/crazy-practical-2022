@@ -79,11 +79,12 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 elif state == State.go_to_target_zone:
                     
                     if(pc._x < 3.5):
-                        if ((multiranger._front_distance, float) and (multiranger._front_distance < mn.THRESHOLD_SENSOR) or cntr_vect[3] == True) :
+                        if ((multiranger._front_distance, float) and (multiranger._front_distance < mn.THRESHOLD_SENSOR) 
+                            or cntr_vect[3] == True) :
                             if(pc._y > 1.5):
-                                cntr_vect = obstacle_step.avoid_forward(avoiding_side = Direction.right, cntr_vect = cntr_vect, U_trajectory = False)
+                                cntr_vect = obstacle_step.avoid_forward(Direction.right, cntr_vect, U_trajectory = False)
                             else:
-                                cntr_vect = obstacle_step.avoid_forward(avoiding_side = Direction.left, cntr_vect = cntr_vect, U_trajectory = False)
+                                cntr_vect = obstacle_step.avoid_forward(Direction.left, cntr_vect, U_trajectory = False)
                         else:
                             pc.forward(mn.DISTANCE_STANDART_STEP)
                     else:
@@ -116,8 +117,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     
                     ## GOING ->
                     if direction== Direction.right: 
-                        if (isinstance(multiranger._right_distance, float) and multiranger._right_distance < mn.THRESHOLD_SENSOR):
-                            cntr_vect = obstacle_step.avoid_right_side(avoiding_side = Direction.forward, cntr_vect = cntr_vect, U_trajectory = True)
+                        if ((isinstance(multiranger._right_distance, float) and multiranger._right_distance < mn.THRESHOLD_SENSOR) 
+                            or cntr_vect[3] == True):
+                            cntr_vect = obstacle_step.avoid_right_side(Direction.forward, cntr_vect, U_trajectory = True)
                         else : 
                             pc.right(mn.DISTANCE_STANDART_STEP)
                         
@@ -129,8 +131,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             else : direction = direction.forward
                     
                     elif direction == Direction.left:
-                        if (isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR):
-                            cntr_vect = obstacle_step.avoid_left_side(avoiding_side = Direction.forward, cntr_vect = cntr_vect, U_trajectory = True)
+                        if ((isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR) 
+                            or cntr_vect[3] == True):
+                            cntr_vect = obstacle_step.avoid_left_side(Direction.forward, cntr_vect, U_trajectory = True)
                         else : 
                             pc.left(mn.DISTANCE_STANDART_STEP)
                         

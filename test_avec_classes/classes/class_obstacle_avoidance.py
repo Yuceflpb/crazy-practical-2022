@@ -346,7 +346,7 @@ class Obstacle_avoidance_step(State):
                     if(avoiding_side == Direction.forward): 
                         self.pc.back(mn.DISTANCE_STANDART_STEP)
                     else:  
-                        self.pc.forward(mn.DISTANCE_STANDART_STEPANDART_STEP)
+                        self.pc.forward(mn.DISTANCE_STANDART_STEP)
             
                 return cntr_vect
 
