@@ -118,7 +118,10 @@ class RefineTarget(State):
         #security if the overshoot with fast speed goes beyond the box
         self.security_ctr_step_off += 1
         if self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
+            
+            print("J'ai assez avancer")
             time.sleep(mn.WAITING_TIME)
+
 
             self.prev_down_dist = self.multiranger._down_distance
             self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
