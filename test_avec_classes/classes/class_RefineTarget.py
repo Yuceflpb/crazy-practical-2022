@@ -1,4 +1,5 @@
 import time
+import numpy as np
 
 from classes.class_State import State #attention peut etre confli de nom entre la classe et l'enum
 import classes.my_magic_numbers as mn
@@ -23,8 +24,10 @@ class RefineTarget(State):
         self.coord_target_detec = None #tuple
         self.coord_step_off_side = None #tuple
         self.prev_down_dist = None
-        self.z_meas_ctr = 0
+        #self.z_meas_ctr = 0 #for old way measuring
         self.security_ctr_step_off = 0
+
+        self.array_down_dist = None
 
         pass
     
@@ -33,6 +36,8 @@ class RefineTarget(State):
         self.coord_target_detec = (self.pc._x,self.pc._y)
         self.prev_down_dist = self.multiranger._down_distance
         self.pc.set_default_velocity(mn.SLOWER_SPEED)
+
+        self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
         
         pass
 
@@ -40,15 +45,11 @@ class RefineTarget(State):
         """
         perform one step on the state refine target
         """
-        ##
-        #print("dans le state : ", self.pc._x)
-        ##
 
-        self.measure_down_every_nb_step()
+        self.measure_down_update_mean()
 
         if self.state_rt == State_refine_target.step_off:
             self.step_off()
-            #ajouter securiter si il overshoot en step on
         elif self.state_rt == State_refine_target.step_back_on:
             self.step_back_on()
         elif self.state_rt == State_refine_target.step_off_side:
@@ -58,7 +59,7 @@ class RefineTarget(State):
             if finish:
                 #update the pc coordinates 
                 #...
-                #go back to faster speed again (or maybe keep it to land..???)
+                #go back to faster speed again
                 self.pc.set_default_velocity(mn.FASTER_SPEED)
 
                 return True
@@ -66,11 +67,19 @@ class RefineTarget(State):
 
     #---HELPER FUNCTIONS---#
 
-    def measure_down_every_nb_step(self):
-        self.z_meas_ctr += 1
-        if self.z_meas_ctr == mn.MAX_CTR_Z_MEAS:
-            self.prev_down_dist = self.multiranger._down_distance
-            self.z_meas_ctr = 0
+    def measure_down_update_mean(self):
+        np.roll(self.array_down_dist, 1)
+        self.array_down_dist[0] = self.multiranger._down_distance
+
+        self.prev_down_dist = np.mean(self.array_down_dist)
+        #print(self.prev_down_dist)
+
+        #previous way of measuring :
+
+        # self.z_meas_ctr += 1
+        # if self.z_meas_ctr == mn.MAX_CTR_Z_MEAS:
+        #     self.prev_down_dist = self.multiranger._down_distance
+        #     self.z_meas_ctr = 0
     
     def step_detection(self):
         step_detected = isinstance(self.multiranger._down_distance, float) and\
@@ -78,6 +87,22 @@ class RefineTarget(State):
                         abs(self.multiranger._down_distance - self.prev_down_dist) >= mn.Z_DETEC_TRESHOLD
         
         return step_detected
+    
+    def step_up_detection(self):
+        step_detected = isinstance(self.multiranger._down_distance, float) and\
+                        isinstance(self.prev_down_dist, float) and\
+                        self.prev_down_dist - self.multiranger._down_distance >= mn.Z_DETEC_TRESHOLD_UP
+        
+        return step_detected
+        
+
+    def step_down_detection(self):
+        step_detected = isinstance(self.multiranger._down_distance, float) and\
+                        isinstance(self.prev_down_dist, float) and\
+                        self.multiranger._down_distance - self.prev_down_dist >= mn.Z_DETEC_TRESHOLD_DOWN
+        
+        return step_detected
+    
 
     def step_off(self):
         #go in the direction of comming
@@ -87,15 +112,27 @@ class RefineTarget(State):
             self.pc.left(mn.DISTANCE_STANDART_STEP)
         elif self.direction_comming == Direction.right:
             self.pc.right(mn.DISTANCE_STANDART_STEP)
+        elif self.direction_comming == Direction.back:
+            self.pc.back(mn.DISTANCE_STANDART_STEP)
 
         #security if the overshoot with fast speed goes beyond the box
         self.security_ctr_step_off += 1
+        if self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
+            
+            print("J'ai assez avancer")
+            time.sleep(mn.WAITING_TIME)
 
-        if self.step_detection() or self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
 
+            self.prev_down_dist = self.multiranger._down_distance
+            self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
+
+            self.state_rt = State_refine_target.step_back_on
+        """
+        if self.step_down_detection() or self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
+            #print("difference step = ", abs(self.multiranger._down_distance - self.prev_down_dist))
             print("I just stepped off")
             #time to stabilize
-            time.sleep(mn.WAITING_TIME)
+            time.sleep(mn.WAITING_TIME_LONG)
 
             #maybe not necessary
             if self.direction_comming == Direction.forward:
@@ -104,15 +141,19 @@ class RefineTarget(State):
                 self.pc.left(mn.BIG_STEP)
             elif self.direction_comming == Direction.right:
                 self.pc.right(mn.BIG_STEP)
+            elif self.direction_comming == Direction.back:
+                self.pc.back(mn.BIG_STEP)
 
             #maybe not necessary
             time.sleep(mn.WAITING_TIME)
 
             #mesure distance OFF the box
-            self.prev_down_dist = self.multiranger._down_distance 
+            self.prev_down_dist = self.multiranger._down_distance
+            self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
 
             #update state refine target
             self.state_rt = State_refine_target.step_back_on
+        """
         pass
 
     def step_back_on(self):
@@ -123,12 +164,15 @@ class RefineTarget(State):
             self.pc.right(mn.DISTANCE_STANDART_STEP)
         elif self.direction_comming == Direction.right:
             self.pc.left(mn.DISTANCE_STANDART_STEP)
+        elif self.direction_comming == Direction.back:
+            self.pc.forward(mn.DISTANCE_STANDART_STEP)
+
         
-        if self.step_detection():
+        if self.step_up_detection():
             
             print("I just stepped back on")
             #time to stabilize
-            time.sleep(mn.WAITING_TIME)
+            time.sleep(mn.WAITING_TIME_LONG)
 
             if self.direction_comming == Direction.forward:
                 self.pc.back(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
@@ -136,6 +180,8 @@ class RefineTarget(State):
                 self.pc.right(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
             elif self.direction_comming == Direction.right:
                 self.pc.left(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
+            elif self.direction_comming == Direction.back:
+                self.pc.forward(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
 
             print("on est bon en incomming direction")
             #time to stabilize
@@ -145,6 +191,7 @@ class RefineTarget(State):
 
             #measure distance ON the box
             self.prev_down_dist = self.multiranger._down_distance
+            self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
 
             self.state_rt = State_refine_target.step_off_side
         pass
@@ -157,8 +204,11 @@ class RefineTarget(State):
             self.pc.forward(mn.DISTANCE_STANDART_STEP)
         elif self.direction_comming == Direction.right:
             self.pc.forward(mn.DISTANCE_STANDART_STEP)
+        elif self.direction_comming == Direction.back:
+            self.pc.right(mn.DISTANCE_STANDART_STEP)
 
-        if self.step_detection():
+
+        if self.step_down_detection():
 
             print("I just stepped off on the side")
 
@@ -166,7 +216,7 @@ class RefineTarget(State):
             self.coord_step_off_side = (self.pc._x, self.pc._y)
 
             #time to stabilize
-            time.sleep(mn.WAITING_TIME)
+            time.sleep(mn.WAITING_TIME_LONG)
 
             #maybe not necessary
             if self.direction_comming == Direction.forward:
@@ -175,12 +225,15 @@ class RefineTarget(State):
                 self.pc.forward(mn.BIG_STEP)
             elif self.direction_comming == Direction.right:
                 self.pc.forward(mn.BIG_STEP)
+            elif self.direction_comming == Direction.back:
+                self.pc.right(mn.BIG_STEP)
 
             #maybe not necessary
             time.sleep(mn.WAITING_TIME)
 
             #mesure distance OFF the box
-            self.prev_down_dist = self.multiranger._down_distance 
+            self.prev_down_dist = self.multiranger._down_distance
+            self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
 
             #update state refine target
             self.state_rt = State_refine_target.step_back_on_side
@@ -194,12 +247,13 @@ class RefineTarget(State):
             self.pc.back(mn.DISTANCE_STANDART_STEP)
         elif self.direction_comming == Direction.right:
             self.pc.back(mn.DISTANCE_STANDART_STEP)
+        elif self.direction_comming == Direction.back:
+            self.pc.left(mn.DISTANCE_STANDART_STEP)
+
         
-        if self.step_detection():
+        if self.step_up_detection():
             
             print("I just stepped back on from the side")
-            #time to stabilize
-            time.sleep(mn.WAITING_TIME)
 
             if self.direction_comming == Direction.forward:
                 self.pc.left(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
@@ -207,11 +261,16 @@ class RefineTarget(State):
                 self.pc.back(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
             elif self.direction_comming == Direction.right:
                 self.pc.back(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
+            elif self.direction_comming == Direction.back:
+                self.pc.left(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
+
+            #time to stabilize
+            time.sleep(mn.WAITING_TIME_LONG)
 
             print("on va atterir ici")
             
             #time to stabilize
-            time.sleep(mn.WAITING_TIME)
+            #time.sleep(mn.WAITING_TIME)
 
             #finish with refine_target
             return True
