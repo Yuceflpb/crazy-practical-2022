@@ -50,7 +50,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
             #state classes inits
             refine_target = RefineTarget(scf, pc, multiranger)
-            go_to_base_loc = GoToBaseLoc(scf, pc, multiranger, x_init, y_init)
+            go_to_base_loc = GoToBaseLoc(scf, pc, multiranger, y_init)
             # refine_base = RefineTarget(scf, pc, multiranger) #normalement on peux reprendre l'autre object
             
             obstacle_step = Obstacle_avoidance_step(scf, pc, multiranger)
@@ -68,6 +68,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             z_meas_ctr = 0
             
             cntr_vect = [0,0,0,0]
+            go_base = 0
             
             #for step detec
             prev_down_dist = multiranger._down_distance
@@ -232,16 +233,59 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     break #remoove when done
 
                 elif state == State.go_to_base_loc:
-                    dir = go_to_base_loc.step()
-                    if isinstance(dir, int): #-1
+                    go_base = go_to_base_loc.step()
+                    if go_base:
                         state = state.search_base
-                    elif isinstance(dir, Direction) :    
-                        direction_comming = dir
-                        state = State.refine_base
+                        init = True
+                        
+                        
                 
                 elif state == State.search_base:
                     print("in state search base")
-                    pass
+                    if init:
+                        print('INIT SEARCH TARGET')
+                        direction = Direction.right
+
+                        x_line_pos= pc._x
+
+                        #avoid_obstacle_on = False # Will define on which side obstacle avoidance is done
+                        first_crossing = True
+                        init = False
+                        print('Arrive a la fin du init')
+                    
+                    ## GOING ->
+                    if direction== Direction.right: 
+                        if ((isinstance(multiranger._right_distance, float) and multiranger._right_distance < mn.THRESHOLD_SENSOR) 
+                            or cntr_vect[3] == True):
+                            cntr_vect = obstacle_step.avoid_right_side(Direction.forward, cntr_vect, U_trajectory = True)
+                        else : 
+                            pc.right(mn.DISTANCE_STANDART_STEP)
+                        
+                        if (pc._y < mn.TOLERANCE_DIST): # If has reached the right border of the map
+                            print('arrived at border')
+                            direction = direction.back
+                    
+                    elif direction == Direction.left:
+                        if ((isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR) 
+                            or cntr_vect[3] == True):
+                            cntr_vect = obstacle_step.avoid_left_side(Direction.forward, cntr_vect, U_trajectory = True)
+                        else : 
+                            pc.left(mn.DISTANCE_STANDART_STEP)
+                        
+                        if (pc._y < (self.y_init+mn.THRESHOLD_BASE_SEARCH_MAP) - mn.TOLERANCE_DIST):
+                            print('arrived at border')
+                            else : direction = direction.back
+                        
+                    elif direction == Direction.back:
+                        pc.back(mn.DISTANCE_STANDART_STEP)
+                        counter_zig_zag += 1
+                        if counter_zig_zag == mn.ZIG_ZAG_MARGIN:
+                            if pc._y < mn.TOLERANCE_DIST: direction = direction.left
+                            else : direction = direction.right
+                            counter_zig_zag = 0
+                            x_line_pos=pc._x
+                    
+                    
                 
                 elif state == State.refine_base:
                     #print("in state refine base")
