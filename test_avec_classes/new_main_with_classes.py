@@ -28,6 +28,7 @@ x_init = 0
 y_init = 0
 z_box_init = 0
 init = True
+init_forward_zigzag = True
 counter_zig_zag = 0
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
@@ -143,7 +144,24 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                                 direction=direction.right
                                 first_crossing=False
                             else : direction = direction.forward
+
+                    elif direction == Direction.forward:
+                        if init_forward_zigzag:
+                            prev_x_pos =pc._x
+                            init_forward_zigzag=False
+                        if ((isinstance(multiranger._front_distance, float) and multiranger._front_distance < mn.THRESHOLD_SENSOR) 
+                            or cntr_vect[3] == True):
+                            if pc._y> mn.Y_MIDDLE:
+                                cntr_vect = obstacle_step.avoid_forward(Direction.right, cntr_vect, U_trajectory = False)
+                            else:
+                                cntr_vect = obstacle_step.avoid_forward(Direction.left, cntr_vect, U_trajectory = False)
+                        if pc._x == prev_x_pos+mn.ZIG_ZAG_MARGIN:
+                            if pc._y > mn.Y_MIDDLE: direction = direction.right
+                            else : direction = direction.left
+
+                            init_forward_zigzag=True
                         
+                    '''
                     elif direction == Direction.forward:
                         pc.forward(mn.DISTANCE_STANDART_STEP)
                         counter_zig_zag += 1
@@ -153,6 +171,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                             counter_zig_zag = 0
                             x_line_pos=pc._x
+                    '''  
 
 
 
