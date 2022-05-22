@@ -41,7 +41,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             time.sleep(2)
 
             #init state
-            #state = State.debug_refine_target #define the one we want to debug
+            state = State.debug_refine_target #define the one we want to debug
             #state = State.debug_go_to_base_loc
             state = State.go_to_target_zone
             #state = State.search_target
@@ -199,8 +199,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 
                 elif state == State.landing_target:
                     pc.land()
-                    print("landed")
-                    break
+                    print("landed on taget")
+                    break #remoove when done
 
                 elif state == State.go_to_base_loc:
                     dir = go_to_base_loc.step()
@@ -240,6 +240,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     if z_meas_ctr == mn.MAX_CTR_Z_MEAS:
                         z_meas_ctr = 0
                         prev_down_dist = multiranger._down_distance
+
+                    print("in debug before if")
 
                     if isinstance(multiranger._down_distance, float) and\
                         isinstance(prev_down_dist, float) and\
