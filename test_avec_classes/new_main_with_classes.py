@@ -42,10 +42,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             time.sleep(2)
 
             #init state
-            state = State.debug_refine_target #define the one we want to debug
+            #state = State.debug_refine_target #define the one we want to debug
             #state = State.debug_go_to_base_loc
-            state = State.go_to_target_zone
+            #state = State.go_to_target_zone
             #state = State.search_target
+            state = State.take_off_from_base
 
             #state classes inits
             refine_target = RefineTarget(scf, pc, multiranger)
