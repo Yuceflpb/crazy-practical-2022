@@ -43,8 +43,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             #init state
             #state = State.debug_refine_target #define the one we want to debug
             #state = State.debug_go_to_base_loc
-            #state = State.go_to_target_zone
-            state = State.search_target
+            state = State.go_to_target_zone
+            #state = State.search_target
 
             #state classes inits
             refine_target = RefineTarget(scf, pc, multiranger)
@@ -149,13 +149,20 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         if init_forward_zigzag:
                             prev_x_pos =pc._x
                             init_forward_zigzag=False
+                        
                         if ((isinstance(multiranger._front_distance, float) and multiranger._front_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
+                            #print('obstacle avoid dans le forward')
                             if pc._y> mn.Y_MIDDLE:
                                 cntr_vect = obstacle_step.avoid_forward(Direction.right, cntr_vect, U_trajectory = False)
                             else:
                                 cntr_vect = obstacle_step.avoid_forward(Direction.left, cntr_vect, U_trajectory = False)
-                        if pc._x == prev_x_pos+mn.ZIG_ZAG_MARGIN:
+                        else:
+                            #print('prev x = ', prev_x_pos, 'now x = ', pc._x)
+                            pc.forward(mn.DISTANCE_STANDART_STEP)
+
+                        if pc._x > prev_x_pos+mn.ZIG_ZAG_MARGIN:
+                            #print('fin de forward, continue')
                             if pc._y > mn.Y_MIDDLE: direction = direction.right
                             else : direction = direction.left
 
