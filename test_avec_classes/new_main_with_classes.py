@@ -7,6 +7,7 @@ from cflib.utils import uri_helper
 
 
 import time
+import numpy as np
 
 
 from classes.my_enum import State, Direction
@@ -27,7 +28,7 @@ cflib.crtp.init_drivers()
 x_init = 0
 y_init = 0
 z_box_init = 0
-init = True
+init_search_target = True
 init_forward_zigzag = True
 counter_zig_zag = 0
 
@@ -61,19 +62,22 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             direction_comming = None
 
             #variables for debug
-            prev_down_dist = multiranger._down_distance
+            prev_down_dist_debug = multiranger._down_distance
+            
             z_meas_ctr = 0
             
             cntr_vect = [0,0,0,0]
             
-
-
+            #for step detec
+            prev_down_dist = multiranger._down_distance
+            array_down_dist = None
 
             #---INFINITE WHILE LOOP---#
             while True:
             
                 if state == State.take_off_from_base:
                     #implement
+                    state = State.go_to_target_zone
                     pass
                 
                 
@@ -90,7 +94,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             pc.forward(mn.DISTANCE_STANDART_STEP)
                     else:
                         state = State.search_target
-                        init = True
+                        init_search_target = True
                     
                     '''
                     if((isinstance(multiranger._right_distance, float) and (multiranger._right_distance < mn.THRESHOLD_SENSOR)) or cntr_vect[3] == True):
@@ -102,22 +106,25 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         
                         
                 elif state == State.search_target:   
-                    #detection edge
                     # go dans landing     
-                    if init: #Only done the first time going through this function
+                    if init_search_target: #Only done the first time going through this function
                         print('INIT SEARCH TARGET')
-                        if pc._y < mn.Y_MIDDLE:  direction = Direction.right
-                        else : direction = Direction.left
+                        if pc._y < mn.Y_MIDDLE:  direction_st = Direction.right
+                        else : direction_st = Direction.left
 
                         x_line_pos= pc._x
 
+                        #for edge detec
+                        prev_down_dist = multiranger._down_distance
+                        array_down_dist = np.full(mn.NB_ELEM_MEAN, prev_down_dist)
+
                         #avoid_obstacle_on = False # Will define on which side obstacle avoidance is done
                         first_crossing = True
-                        init = False
+                        init_search_target = False
                         print('Arrive a la fin du init')
                     
                     ## GOING ->
-                    if direction== Direction.right: 
+                    if direction_st== Direction.right: 
                         if ((isinstance(multiranger._right_distance, float) and multiranger._right_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
                             cntr_vect = obstacle_step.avoid_right_side(Direction.forward, cntr_vect, U_trajectory = True)
@@ -127,11 +134,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         if (abs(mn.Y_LIMRIGHT - pc._y)< mn.TOLERANCE_DIST): # If has reached the right border of the map
                             print('arrived at border')
                             if first_crossing == True : 
-                                direction=direction.left
+                                direction_st=direction_st.left
                                 first_crossing=False
-                            else : direction = direction.forward
+                            else : direction_st = direction_st.forward
                     
-                    elif direction == Direction.left:
+                    elif direction_st == Direction.left:
                         if ((isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
                             cntr_vect = obstacle_step.avoid_left_side(Direction.forward, cntr_vect, U_trajectory = True)
@@ -141,11 +148,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         if (abs(mn.Y_LIMLEFT - pc._y)< mn.TOLERANCE_DIST): # If has reached the right border of the map
                             print('arrived at border')
                             if first_crossing == True : 
-                                direction=direction.right
+                                direction_st=direction_st.right
                                 first_crossing=False
-                            else : direction = direction.forward
+                            else : direction_st = direction_st.forward
 
-                    elif direction == Direction.forward:
+                    elif direction_st == Direction.forward:
                         if init_forward_zigzag:
                             prev_x_pos =pc._x
                             init_forward_zigzag=False
@@ -163,10 +170,12 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                         if pc._x > prev_x_pos+mn.ZIG_ZAG_MARGIN:
                             #print('fin de forward, continue')
-                            if pc._y > mn.Y_MIDDLE: direction = direction.right
-                            else : direction = direction.left
+                            if pc._y > mn.Y_MIDDLE: direction_st = direction_st.right
+                            else : direction_st = direction_st.left
 
                             init_forward_zigzag=True
+                    
+                    
                         
                     '''
                     elif direction == Direction.forward:
@@ -179,6 +188,25 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             counter_zig_zag = 0
                             x_line_pos=pc._x
                     '''  
+                    #detection edge
+
+                    if isinstance(multiranger._down_distance, float) and\
+                       isinstance(prev_down_dist, float) and\
+                       abs(multiranger._down_distance - prev_down_dist) >= mn.Z_DETEC_TRESHOLD:
+                        
+                        #stabilize
+                        time.sleep(mn.WAITING_TIME)
+
+                        state = State.refine_target
+                        direction_comming = direction_st 
+                        print("state updated") 
+                        
+                        pass
+
+                    np.roll(array_down_dist, 1)
+                    array_down_dist[0] = multiranger._down_distance
+
+                    prev_down_dist = np.mean(array_down_dist)
 
 
 
@@ -239,13 +267,13 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     z_meas_ctr += 1
                     if z_meas_ctr == mn.MAX_CTR_Z_MEAS:
                         z_meas_ctr = 0
-                        prev_down_dist = multiranger._down_distance
+                        prev_down_dist_debug = multiranger._down_distance
 
-                    print("in debug before if")
+                    #print("in debug before if")
 
                     if isinstance(multiranger._down_distance, float) and\
-                        isinstance(prev_down_dist, float) and\
-                        abs(multiranger._down_distance - prev_down_dist) >= mn.Z_DETEC_TRESHOLD:               
+                        isinstance(prev_down_dist_debug, float) and\
+                        abs(multiranger._down_distance - prev_down_dist_debug) >= mn.Z_DETEC_TRESHOLD:               
                                 
                         print("we just stepped on")
 
