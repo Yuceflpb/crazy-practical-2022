@@ -117,7 +117,14 @@ class RefineTarget(State):
 
         #security if the overshoot with fast speed goes beyond the box
         self.security_ctr_step_off += 1
+        if self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
+            time.sleep(mn.WAITING_TIME)
 
+            self.prev_down_dist = self.multiranger._down_distance
+            self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
+
+            self.state_rt = State_refine_target.step_back_on
+        """
         if self.step_down_detection() or self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
             #print("difference step = ", abs(self.multiranger._down_distance - self.prev_down_dist))
             print("I just stepped off")
@@ -143,6 +150,7 @@ class RefineTarget(State):
 
             #update state refine target
             self.state_rt = State_refine_target.step_back_on
+        """
         pass
 
     def step_back_on(self):
@@ -243,8 +251,6 @@ class RefineTarget(State):
         if self.step_up_detection():
             
             print("I just stepped back on from the side")
-            #time to stabilize
-            time.sleep(mn.WAITING_TIME_LONG)
 
             if self.direction_comming == Direction.forward:
                 self.pc.left(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
@@ -255,10 +261,13 @@ class RefineTarget(State):
             elif self.direction_comming == Direction.back:
                 self.pc.left(mn.BOX_SIZE/2 - mn.OVERSHOT_DIST_SLOW_UP)
 
+            #time to stabilize
+            time.sleep(mn.WAITING_TIME_LONG)
+
             print("on va atterir ici")
             
             #time to stabilize
-            time.sleep(mn.WAITING_TIME)
+            #time.sleep(mn.WAITING_TIME)
 
             #finish with refine_target
             return True
