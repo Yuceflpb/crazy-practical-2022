@@ -5,7 +5,7 @@ from classes.my_enum import Direction
 
 from enum import Enum
 
-from classes.class_obstacle_avoidance import Obstacle_avoidance_step
+from classes.class_obstacle_avoidance import ObstacleAvoidanceStep
 import classes.my_magic_numbers as mn
 
 class State_gtbl(Enum):
@@ -19,7 +19,7 @@ class GoToBaseLoc(State):
         super().__init__(scf, pc, multiranger)
 
         self.y_init = y_init
-        self.obstacle_step = Obstacle_avoidance_step(scf, pc, multiranger)
+        self.obstacle_step = ObstacleAvoidanceStep(scf, pc, multiranger)
 
         self.state_gtbl = State_gtbl.horiz
 
@@ -42,13 +42,13 @@ class GoToBaseLoc(State):
             return True
 
     def go_to_y_coord(self):
-        if self.pc._y > ((self.y_init+mn.THRESHOLD_BASE_SEARCH_MAP) + mn.EPSILON_PREC):
+        if self.pc._y > ((self.y_init + mn.DIST_BASE_SEARCH_MAP) + mn.EPSILON_PREC):
             if ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) 
              or self.cntr_vect[3] == True):
                 self.cntr_vect = self.obstacle_step.avoid_right_side(Direction.back, self.cntr_vect, U_trajectory = False)
             else : 
                 self.pc.right(mn.DISTANCE_STANDART_STEP)
-        elif self.pc._y < ((self.y_init+mn.THRESHOLD_BASE_SEARCH_MAP) - mn.EPSILON_PREC):
+        elif self.pc._y < ((self.y_init+mn.DIST_BASE_SEARCH_MAP) - mn.EPSILON_PREC):
             if ((isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR) 
              or self.cntr_vect[3] == True):
                 self.cntr_vect = self.obstacle_step.avoid_left_side(Direction.back, self.cntr_vect, U_trajectory = False)
