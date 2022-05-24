@@ -1,10 +1,11 @@
 
 from classes.class_State import State
 from classes.my_enum import Direction
-from classes.classes_obstacle_avoidance
+
 
 from enum import Enum
 
+from classes.class_obstacle_avoidance import Obstacle_avoidance_step
 import classes.my_magic_numbers as mn
 
 class State_gtbl(Enum):
@@ -18,6 +19,7 @@ class GoToBaseLoc(State):
         super().__init__(scf, pc, multiranger)
 
         self.y_init = y_init
+        self.obstacle_step = Obstacle_avoidance_step(scf, pc, multiranger)
 
         self.state_gtbl = State_gtbl.horiz
 
@@ -41,15 +43,15 @@ class GoToBaseLoc(State):
 
     def go_to_y_coord(self):
         if self.pc._y > ((self.y_init+mn.THRESHOLD_BASE_SEARCH_MAP) + mn.EPSILON_PREC):
-             if ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) 
-             or cntr_vect[3] == True):
-                cntr_vect = obstacle_step.avoid_right_side(Direction.back, cntr_vect, U_trajectory = False)
+            if ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) 
+             or self.cntr_vect[3] == True):
+                self.cntr_vect = self.obstacle_step.avoid_right_side(Direction.back, self.cntr_vect, U_trajectory = False)
             else : 
                 self.pc.right(mn.DISTANCE_STANDART_STEP)
         elif self.pc._y < ((self.y_init+mn.THRESHOLD_BASE_SEARCH_MAP) - mn.EPSILON_PREC):
             if ((isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR) 
-             or cntr_vect[3] == True):
-                cntr_vect = obstacle_step.avoid_left_side(Direction.back, cntr_vect, U_trajectory = False)
+             or self.cntr_vect[3] == True):
+                self.cntr_vect = self.obstacle_step.avoid_left_side(Direction.back, self.cntr_vect, U_trajectory = False)
             else : 
                 self.pc.left(mn.DISTANCE_STANDART_STEP)
             
@@ -59,8 +61,8 @@ class GoToBaseLoc(State):
     def go_to_x_coord(self):
         if self.pc._x > mn.BASE_ZONE_HEIGHT:
             if ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR) 
-             or cntr_vect[3] == True):
-                cntr_vect = obstacle_step.avoid_backward(Direction.right, cntr_vect, U_trajectory = True)
+             or self.cntr_vect[3] == True):
+                self.cntr_vect = self.obstacle_step.avoid_backward(Direction.right, self.cntr_vect, U_trajectory = True)
             else : 
                 self.pc.back(mn.DISTANCE_STANDART_STEP)
         else: #we are at the base coord, without detecting it

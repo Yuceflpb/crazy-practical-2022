@@ -17,6 +17,8 @@ class Obstacle_avoidance_step(State):
         super().__init__(scf, pc, multiranger)
         self.preshoot = mn.PRESHOOT
         self.overshoot = mn.OVERSHOOT
+        self.line_pos_y = 0
+        self.line_pos_x = 0
 
     #contexte: bas haut
     #initialiser vecteur a 3 dims en attribut
@@ -26,7 +28,9 @@ class Obstacle_avoidance_step(State):
     # U_trajectory : sert a decider si on sort apres une traj en U ou en L (demander tutur si besoin)
     def avoid_forward(self, avoiding_side, cntr_vect, U_trajectory):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
+        
         if(not(cntr_vect[3])):
+            print("avoid forward")
             self.line_pos_y = self.pc._y
             cntr_vect[3] = True
         
@@ -107,7 +111,9 @@ class Obstacle_avoidance_step(State):
     
     def avoid_backward(self, avoiding_side, cntr_vect, U_trajectory):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
+        
         if(not(cntr_vect[3])):
+            print("avoid backward")
             self.line_pos_y = self.pc._y
             cntr_vect[3] = True
         
@@ -186,7 +192,9 @@ class Obstacle_avoidance_step(State):
 
     def avoid_right_side(self, avoiding_side, cntr_vect, U_trajectory):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
+        
         if(not(cntr_vect[3])):
+            print("avoid right side")
             self.line_pos_x = self.pc._x
             cntr_vect[3] = True
         
@@ -282,7 +290,9 @@ class Obstacle_avoidance_step(State):
 
     def avoid_left_side(self, avoiding_side, cntr_vect, U_trajectory):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
+        
         if(not(cntr_vect[3])):
+            print("avoid left side")
             self.line_pos_x = self.pc._x
             cntr_vect[3] = True
         
