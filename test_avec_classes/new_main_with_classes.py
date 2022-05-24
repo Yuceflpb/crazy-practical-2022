@@ -99,19 +99,17 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     if(pc._x < mn.TARGET_ZONE_X or cntr_vect[3] == True):
                         if ((multiranger._front_distance, float) and (multiranger._front_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True) :
-                            if(obstacle_seen == False):
+                            if(cntr_vect[3] == False):
                                 if(pc._y > mn.Y_MIDDLE):
                                     print("right")
                                     optimized_direction = Direction.right
                                 else:
                                     print("left")
                                     optimized_direction = Direction.left
-                                obstacle_seen = True
                             cntr_vect = obstacle_step.avoid_forward(optimized_direction, cntr_vect, U_trajectory = False)
                         else:
                             pc.forward(mn.DISTANCE_STANDARD_STEP)
                     else:
-                        obstacle_seen = False
                         cntr_vect = [0,0,0,0]
                         state = State.search_target
                     
