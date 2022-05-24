@@ -56,6 +56,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             run_once_refine_base = True
             run_once_search_target = True
             run_once_forward_zigzag = True
+            run_once_back_zigzag = True
             run_once_search_base = True
             
 
@@ -281,6 +282,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     
                     ## GOING ->
                     if direction_sb == Direction.right: 
+                        print("avoid right")
                         if ((isinstance(multiranger._right_distance, float) and multiranger._right_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
                             cntr_vect = obstacle_step.avoid_right_side(Direction.forward, cntr_vect, U_trajectory = True)
@@ -292,6 +294,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             direction_sb = direction_sb.back
                     
                     elif direction_sb == Direction.left:
+                        print("avoid left")
                         if ((isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
                             cntr_vect = obstacle_step.avoid_left_side(Direction.forward, cntr_vect, U_trajectory = True)
@@ -303,13 +306,30 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else : direction_sb = direction_sb.back
                         
                     elif direction_sb == Direction.back:
-                        pc.back(mn.DISTANCE_STANDARD_STEP)
-                        counter_zig_zag += 1
-                        if counter_zig_zag == mn.ZIG_ZAG_MARGIN:
-                            if pc._y < mn.TOLERANCE_DIST: direction_sb = direction_sb.left
+                        print("back sb")
+                        if run_once_back_zigzag:
+                            prev_x_pos =pc._x
+                            run_once_back_zigzag=False
+                        
+                        if ((isinstance(multiranger._back_distance, float) and multiranger._back_distance < mn.THRESHOLD_SENSOR) 
+                            or cntr_vect[3] == True):
+                            #print('obstacle avoid dans le forward')
+                            if pc._y> mn.Y_MIDDLE:
+                                cntr_vect = obstacle_step.avoid_backward(Direction.right, cntr_vect, U_trajectory = False)
+                            else:
+                                cntr_vect = obstacle_step.avoid_backward(Direction.left, cntr_vect, U_trajectory = False)
+                        else:
+                            #print('prev x = ', prev_x_pos, 'now x = ', pc._x)
+                            pc.back(mn.DISTANCE_STANDARD_STEP)
+
+                        if pc._x < prev_x_pos-mn.ZIG_ZAG_MARGIN:
+                            #print('fin de forward, continue')
+                            if pc._y < y_init: direction_sb = direction_sb.left
                             else : direction_sb = direction_sb.right
-                            counter_zig_zag = 0
+
+                            run_once_forward_zigzag=True
                             x_line_pos=pc._x
+
 
                     #detec step
                     if isinstance(multiranger._down_distance, float) and\
