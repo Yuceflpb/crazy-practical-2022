@@ -87,7 +87,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
             #---INFINITE WHILE LOOP---#
             while True:
-            
+                print('pc x=', pc._x,'y = ', pc._y)
                 if state == State.take_off_from_base:
                     #implement
                     state = State.go_to_target_zone
@@ -150,7 +150,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else : 
                             pc.right(mn.DISTANCE_STANDARD_STEP)
                         
-                        if (abs(mn.Y_LIMRIGHT - pc._y)< mn.TOLERANCE_DIST): # If has reached the right border of the map
+                        if ((abs(mn.Y_LIMRIGHT - pc._y)< mn.TOLERANCE_DIST) or cntr_vect[3] == True): # If has reached the right border of the map
                             print('arrived at border')
                             if first_crossing == True : 
                                 direction_st=direction_st.left
@@ -164,7 +164,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else : 
                             pc.left(mn.DISTANCE_STANDARD_STEP)
                         
-                        if (abs(mn.Y_LIMLEFT - pc._y)< mn.TOLERANCE_DIST): # If has reached the right border of the map
+                        if ((abs(mn.Y_LIMLEFT - pc._y)< mn.TOLERANCE_DIST) or cntr_vect[3] == True): # If has reached the right border of the map
                             print('arrived at border')
                             if first_crossing == True : 
                                 direction_st=direction_st.right
@@ -336,7 +336,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             else : direction_sb = direction_sb.right
 
                             run_once_back_zigzag=True
-                            x_line_pos=pc._x
+                            
 
 
                     #detec step

@@ -19,6 +19,7 @@ class GoToBaseLoc(State):
         super().__init__(scf, pc, multiranger)
 
         self.y_init = y_init
+        self.x_init = x_init
         self.obstacle_step = ObstacleAvoidanceStep(scf, pc, multiranger)
 
         self.state_gtbl = State_gtbl.horiz
