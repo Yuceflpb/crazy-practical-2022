@@ -30,7 +30,7 @@ x_init = 0.
 y_init = 0.
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
-    with PositionHlCommander(scf, x= x_init, y=y_init) as pc:
+    with PositionHlCommander(scf) as pc:
         with Multiranger(scf) as multiranger:
             
             #---ONE TIME INITIALIZATION---#
@@ -70,8 +70,11 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             
             #for obs avoidance
             cntr_vect = [0,0,0,0]
+
+            #for go to target zone
             obstacle_seen = False
             optimized_direction = Direction.right
+            
             #for zigzag
             counter_zig_zag = 0 
             
@@ -93,13 +96,15 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 
                 elif state == State.go_to_target_zone:
                     
-                    if(pc._x < 3.5 or cntr_vect[3] == True):
+                    if(pc._x < mn.TARGET_ZONE_X or cntr_vect[3] == True):
                         if ((multiranger._front_distance, float) and (multiranger._front_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True) :
                             if(obstacle_seen == False):
-                                if(pc._y > 1.5):
+                                if(pc._y > mn.Y_MIDDLE):
+                                    print("right")
                                     optimized_direction = Direction.right
                                 else:
+                                    print("left")
                                     optimized_direction = Direction.left
                                 obstacle_seen = True
                             cntr_vect = obstacle_step.avoid_forward(optimized_direction, cntr_vect, U_trajectory = False)
@@ -109,7 +114,6 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         obstacle_seen = False
                         cntr_vect = [0,0,0,0]
                         state = State.search_target
-                        run_once_search_target = True
                     
                     '''
                     if((isinstance(multiranger._right_distance, float) and (multiranger._right_distance < mn.THRESHOLD_SENSOR)) or cntr_vect[3] == True):
