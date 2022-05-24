@@ -117,7 +117,9 @@ class RefineTarget(State):
 
         #security to clearly overshoot the obstacles
         self.security_ctr_step_off += 1
-        if self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
+        # and check if an obstacle is on the way
+        if self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF or\
+           self.multiranger._front_distance <= mn.THRESHOLD_SENSOR_REFINE_TARGET:
             
             print("J'ai assez avancer")
             time.sleep(mn.WAITING_TIME)
