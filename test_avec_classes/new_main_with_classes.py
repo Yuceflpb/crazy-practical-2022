@@ -343,13 +343,13 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             print('prev x = ', prev_x_pos, 'now x = ', pc._x)
                             pc.back(mn.DISTANCE_STANDARD_STEP)
 
-                        if ((pc._x  < prev_x_pos - mn.ZIG_ZAG_MARGIN) or cntr_vect[3] == True):
-                            print('fin de forward, continue et pc.y =', pc._y)
-                            print('y_init =', y_init)
-                            if pc._y < 0 : direction_sb = direction_sb.left #zeor because we're in the ref of pc (not xinit)
-                            else : direction_sb = direction_sb.right
+                            if ((pc._x  < prev_x_pos - mn.ZIG_ZAG_MARGIN)):
+                                print('fin de forward, continue et pc.y =', pc._y)
+                                print('y_init =', y_init)
+                                if pc._y < 0 : direction_sb = direction_sb.left #zeor because we're in the ref of pc (not xinit)
+                                else : direction_sb = direction_sb.right
 
-                            run_once_back_zigzag=True
+                                run_once_back_zigzag=True
                             
 
 
