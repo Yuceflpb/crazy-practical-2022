@@ -15,7 +15,7 @@ class State_gtbl(Enum):
     at_pos_no_step_found = 3
 
 class GoToBaseLoc(State):
-    def __init__(self, scf, pc, multiranger, y_init):
+    def __init__(self, scf, pc, multiranger, y_init, x_init):
         super().__init__(scf, pc, multiranger)
 
         self.y_init = y_init
@@ -36,13 +36,11 @@ class GoToBaseLoc(State):
         elif self.state_gtbl == State_gtbl.vert:
             self.go_to_x_coord()
             return False
-        elif self.state_gtbl == State_gtbl.step_found:
-            return Direction.back #we're always comming from the back
         elif self.state_gtbl == State_gtbl.at_pos_no_step_found:
             return True
 
     def go_to_y_coord(self):
-        if self.pc._y > ((self.y_init + mn.DIST_BASE_SEARCH_MAP) + mn.EPSILON_PREC):
+        if (self.pc._y > ((self.y_init + mn.DIST_BASE_SEARCH_MAP) + mn.EPSILON_PREC)) or self.cntr_vect[3] == True:
             if ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) 
              or self.cntr_vect[3] == True):
                 self.cntr_vect = self.obstacle_step.avoid_right_side(Direction.back, self.cntr_vect, U_trajectory = False)
@@ -59,7 +57,7 @@ class GoToBaseLoc(State):
             self.state_gtbl = State_gtbl.vert
 
     def go_to_x_coord(self):
-        if self.pc._x > mn.BASE_ZONE_HEIGHT:
+        if (self.pc._x > ((self.x_init + mn.DIST_BASE_SEARCH_MAP) + mn.EPSILON_PREC)) or self.cntr_vect[3] == True:
             if ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR) 
              or self.cntr_vect[3] == True):
                 self.cntr_vect = self.obstacle_step.avoid_backward(Direction.right, self.cntr_vect, U_trajectory = True)

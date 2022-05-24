@@ -8,6 +8,7 @@ from cflib.utils import uri_helper
 
 import time
 import numpy as np
+from torch import true_divide
 
 
 from classes.my_enum import State, Direction
@@ -46,7 +47,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
             #state classes inits
             refine_target = RefineTarget(scf, pc, multiranger)
-            go_to_base_loc = GoToBaseLoc(scf, pc, multiranger, y_init)
+            go_to_base_loc = GoToBaseLoc(scf, pc, multiranger, y_init, x_init)
             refine_base = RefineTarget(scf, pc, multiranger)
             
             obstacle_step = ObstacleAvoidanceStep(scf, pc, multiranger)
@@ -289,7 +290,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else : 
                             pc.right(mn.DISTANCE_STANDARD_STEP)
                         
-                        if (pc._y < mn.TOLERANCE_DIST): # If has reached the right border of the map
+                        if ((pc._y < (y_init-mn.DIST_BASE_SEARCH_MAP) + mn.TOLERANCE_DIST) or cntr_vect[3] == True): # If has reached the right border of the map
+                            print('pc.y =', pc._y)
+                            print('margin =', (y_init-mn.DIST_BASE_SEARCH_MAP) + mn.TOLERANCE_DIST)
                             print('arrived at border')
                             direction_sb = direction_sb.back
                     
@@ -301,9 +304,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else : 
                             pc.left(mn.DISTANCE_STANDARD_STEP)
                         
-                        if (pc._y < (y_init+mn.DIST_BASE_SEARCH_MAP) - mn.TOLERANCE_DIST):
+                        if ((pc._y > (y_init+mn.DIST_BASE_SEARCH_MAP) - mn.TOLERANCE_DIST) or cntr_vect[3] == True):
                             print('arrived at border')
-                        else : direction_sb = direction_sb.back
+                            direction_sb = direction_sb.back
                         
                     elif direction_sb == Direction.back:
                         print("back sb")
@@ -313,21 +316,22 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         
                         if ((isinstance(multiranger._back_distance, float) and multiranger._back_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
-                            #print('obstacle avoid dans le forward')
+                            print('obstacle avoid dans le forward')
                             if pc._y> mn.Y_MIDDLE:
-                                cntr_vect = obstacle_step.avoid_backward(Direction.right, cntr_vect, U_trajectory = False)
+                                cntr_vect = obstacle_step.avoid_backward(Direction.right, cntr_vect, U_trajectory = True)
                             else:
-                                cntr_vect = obstacle_step.avoid_backward(Direction.left, cntr_vect, U_trajectory = False)
+                                cntr_vect = obstacle_step.avoid_backward(Direction.left, cntr_vect, U_trajectory = True)
                         else:
-                            #print('prev x = ', prev_x_pos, 'now x = ', pc._x)
+                            print('prev x = ', prev_x_pos, 'now x = ', pc._x)
                             pc.back(mn.DISTANCE_STANDARD_STEP)
 
-                        if pc._x < prev_x_pos-mn.ZIG_ZAG_MARGIN:
-                            #print('fin de forward, continue')
+                        if ((pc._x < prev_x_pos-mn.ZIG_ZAG_MARGIN) or cntr_vect[3] == True):
+                            print('fin de forward, continue et pc.y =', pc._y)
+                            print('y_init =', y_init)
                             if pc._y < y_init: direction_sb = direction_sb.left
                             else : direction_sb = direction_sb.right
 
-                            run_once_forward_zigzag=True
+                            run_once_back_zigzag=True
                             x_line_pos=pc._x
 
 

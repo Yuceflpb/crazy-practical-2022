@@ -243,17 +243,14 @@ class ObstacleAvoidanceStep(State):
         # manoeuvre de preshoot en action, drone sur le _ du U: 
 
         elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot):
-            print("ligne droite pour dpasser")
             
             if(cntr_vect[1]<self.preshoot): 
-                print("je fais le preshoot et cnt vect 1 =", cntr_vect[1] )
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
                 
             elif(cntr_vect[1]==self.preshoot and 
                 ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR) or
                 (isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR))): 
-                print("je vois encore l'bstacle")
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
             elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR)
                     and cntr_vect[2]<self.overshoot):
@@ -266,7 +263,6 @@ class ObstacleAvoidanceStep(State):
         elif(cntr_vect[2]==self.overshoot):
             
             if(U_trajectory):
-                print("u traj" )
                 if((abs(self.pc._x-self.line_pos_x)<mn.TOLERANCE_DIST)):
                     cntr_vect = [0,0,0,0]
     #               cntr_vect[3]=False
