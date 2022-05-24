@@ -41,8 +41,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             #state = State.debug_refine_target #define the one we want to debug
             #state = State.debug_go_to_base_loc
             #state = State.go_to_target_zone
-            #state = State.search_target
-            state = State.take_off_from_base
+            state = State.search_target
+            #state = State.take_off_from_base
+            
 
             #state classes inits
             refine_target = RefineTarget(scf, pc, multiranger)
@@ -86,7 +87,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
             #---INFINITE WHILE LOOP---#
             while True:
-                print('pc x=', pc._x,'y = ', pc._y)
+                #print('pc x=', pc._x,'y = ', pc._y)
                 if state == State.take_off_from_base:
                     #implement
                     state = State.go_to_target_zone
@@ -147,12 +148,19 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else : 
                             pc.right(mn.DISTANCE_STANDARD_STEP)
                         
-                        if ((abs(mn.Y_LIMRIGHT - (pc._y + y_init)) < mn.TOLERANCE_DIST) or cntr_vect[3] == True): # If has reached the right border of the map
-                            print('arrived at border')
-                            if first_crossing == True : 
-                                direction_st=direction_st.left
-                                first_crossing=False
-                            else : direction_st = direction_st.forward
+                            if pc._y<mn.Y_LIMRIGHT: # If has reached the right border of the map
+                                print('arrived at border')
+                                if first_crossing == True : 
+                                    direction_st=direction_st.left
+                                    first_crossing=False
+                                else : direction_st = direction_st.forward
+
+                        # if ((abs(mn.Y_LIMRIGHT - pc._y)< mn.TOLERANCE_DIST) or cntr_vect[3] == True): # If has reached the right border of the map
+                        #     print('arrived at border')
+                        #     if first_crossing == True : 
+                        #         direction_st=direction_st.left
+                        #         first_crossing=False
+                        #     else : direction_st = direction_st.forward
                     
                     elif direction_st == Direction.left:
                         if ((isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR) 
@@ -161,12 +169,19 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else : 
                             pc.left(mn.DISTANCE_STANDARD_STEP)
                         
-                        if ((abs(mn.Y_LIMLEFT - (pc._y + y_init)) < mn.TOLERANCE_DIST) or cntr_vect[3] == True): # If has reached the right border of the map
-                            print('arrived at border')
-                            if first_crossing == True : 
-                                direction_st=direction_st.right
-                                first_crossing=False
-                            else : direction_st = direction_st.forward
+                            if pc._y>mn.Y_LIMLEFT: # If has reached the right border of the map
+                                print('arrived at border')
+                                if first_crossing == True : 
+                                    direction_st=direction_st.right
+                                    first_crossing=False
+                                else : direction_st = direction_st.forward
+
+                        # if ((abs(mn.Y_LIMLEFT - pc._y)< mn.TOLERANCE_DIST) or cntr_vect[3] == True): # If has reached the right border of the map
+                        #     print('arrived at border')
+                        #     if first_crossing == True : 
+                        #         direction_st=direction_st.right
+                        #         first_crossing=False
+                        #     else : direction_st = direction_st.forward
 
                     elif direction_st == Direction.forward:
                         if run_once_forward_zigzag:
@@ -179,7 +194,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             if pc._y + y_init > mn.Y_MIDDLE:
                                 cntr_vect = obstacle_step.avoid_forward(Direction.right, cntr_vect, U_trajectory = False)
                             else:
-                                cntr_vect = obstacle_step.avoid_forward(Direction.left, cntr_vect, U_trajectory = False)
+                                cntr_vect = obstacle_step.avoid_forward(Direction.left, cntr_vect, U_trajectory = True)
                         else:
                             #print('prev x = ', prev_x_pos, 'now x = ', pc._x)
                             pc.forward(mn.DISTANCE_STANDARD_STEP)
@@ -242,7 +257,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         state = State.landing_target
                 
                 elif state == State.landing_target:
+                    pc.set_default_velocity(mn.SLOWER_SPEED)
                     pc.land()
+                    pc.set_default_velocity(mn.FASTER_SPEED)
                     print("landed on taget")
 
                     time.sleep(3)
@@ -251,6 +268,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                 elif state == State.take_off_from_target:
                     pc.take_off()
+                    
 
                     time.sleep(2)
                     state = State.go_to_base_loc
@@ -366,6 +384,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
                 elif state == State.landing_base:
                     print("finish with the demo")
+                    pc.set_default_velocity(mn.SLOWER_SPEED)
                     pc.land()
                     print("!!!!!")
                     break

@@ -74,7 +74,7 @@ class ObstacleAvoidanceStep(State):
 
         # manoeuvre de preshoot en action, drone sur le _ du U: 
 
-        elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot):
+        elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot and U_trajectory):
             
             if(cntr_vect[1]<self.preshoot): 
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
@@ -153,7 +153,7 @@ class ObstacleAvoidanceStep(State):
 
         # manoeuvre de preshoot en action, drone sur le _ du U: 
 
-        elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot):
+        elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot and U_trajectory):
             if(cntr_vect[1]<self.preshoot): 
                 self.pc.back(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
@@ -242,7 +242,7 @@ class ObstacleAvoidanceStep(State):
 
         # manoeuvre de preshoot en action, drone sur le _ du U: 
 
-        elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot):
+        elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot and U_trajectory):
             
             if(cntr_vect[1]<self.preshoot): 
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
@@ -263,6 +263,7 @@ class ObstacleAvoidanceStep(State):
         elif(cntr_vect[2]==self.overshoot):
             
             if(U_trajectory):
+                
                 if((abs(self.pc._x-self.line_pos_x)<mn.TOLERANCE_DIST)):
                     cntr_vect = [0,0,0,0]
     #               cntr_vect[3]=False
@@ -330,8 +331,10 @@ class ObstacleAvoidanceStep(State):
 
         # manoeuvre de preshoot en action, drone sur le _ du U: 
 
-        elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot):
-            if(cntr_vect[1]<self.preshoot): 
+        elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot and U_trajectory):
+            
+            if(cntr_vect[1]<self.preshoot):
+                
                 self.pc.left(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
             elif(cntr_vect[1]==self.preshoot and 
@@ -346,6 +349,7 @@ class ObstacleAvoidanceStep(State):
 
         elif(cntr_vect[2]==self.overshoot):
             if(U_trajectory):
+                
                 if((abs(self.pc._x-self.line_pos_x)<mn.TOLERANCE_DIST)):
                     cntr_vect = [0,0,0,0]
     #               cntr_vect[3]=False
