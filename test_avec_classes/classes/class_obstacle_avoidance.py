@@ -43,9 +43,9 @@ class ObstacleAvoidanceStep(State):
             #MEMOIRE DE LA POSITION EN X POUR Y REVENIR 
             ## peut etre ajouter condition de border
             if avoiding_side == Direction.right:
-                self.pc.right(mn.DISTANCE_STANDART_STEP)
+                self.pc.right(mn.DISTANCE_STANDARD_STEP)
             else:
-                self.pc.left(mn.DISTANCE_STANDART_STEP)
+                self.pc.left(mn.DISTANCE_STANDARD_STEP)
             #si obstacle mais pas en overshoot : cntr = 0.
             
             
@@ -55,9 +55,9 @@ class ObstacleAvoidanceStep(State):
         #en train de coulisser face  à l'obstacle step 1
         elif(cntr_vect[0]<self.overshoot and cntr_vect[1]==0):
             if avoiding_side == Direction.right:
-                self.pc.right(mn.DISTANCE_STANDART_STEP)
+                self.pc.right(mn.DISTANCE_STANDARD_STEP)
             else:
-                self.pc.left(mn.DISTANCE_STANDART_STEP)
+                self.pc.left(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[0]+=1
             cntr_vect[1]=0
             
@@ -65,7 +65,7 @@ class ObstacleAvoidanceStep(State):
 
          # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
         elif(cntr_vect[0]==self.overshoot and cntr_vect[1]==0):
-            self.pc.forward(mn.DISTANCE_STANDART_STEP)
+            self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[1]+=1
             
             return cntr_vect
@@ -77,12 +77,12 @@ class ObstacleAvoidanceStep(State):
         elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot):
             
             if(cntr_vect[1]<self.preshoot): 
-                self.pc.forward(mn.DISTANCE_STANDART_STEP)
+                self.pc.forward(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
             elif(cntr_vect[1]==self.preshoot and ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) or (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR))): 
-                self.pc.forward(mn.DISTANCE_STANDART_STEP)
+                self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR) and cntr_vect[2]<self.overshoot):
-                self.pc.forward(mn.DISTANCE_STANDART_STEP)
+                self.pc.forward(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
         
             return cntr_vect
@@ -94,9 +94,9 @@ class ObstacleAvoidanceStep(State):
                     return cntr_vect
                 else:
                     if(avoiding_side == Direction.right): 
-                        self.pc.left(mn.DISTANCE_STANDART_STEP)
+                        self.pc.left(mn.DISTANCE_STANDARD_STEP)
                     else:  
-                        self.pc.right(mn.DISTANCE_STANDART_STEP)
+                        self.pc.right(mn.DISTANCE_STANDARD_STEP)
                 return cntr_vect
             else: 
                 cntr_vect = [0,0,0,0]
@@ -126,9 +126,9 @@ class ObstacleAvoidanceStep(State):
             #MEMOIRE DE LA POSITION EN X POUR Y REVENIR 
             ## peut etre ajouter condition de border
             if avoiding_side == Direction.right:
-                self.pc.right(mn.DISTANCE_STANDART_STEP)
+                self.pc.right(mn.DISTANCE_STANDARD_STEP)
             else:
-                self.pc.left(mn.DISTANCE_STANDART_STEP)
+                self.pc.left(mn.DISTANCE_STANDARD_STEP)
             #si obstacle mais pas en overshoot : cntr = 0.
             return [0,0,0,1]
 
@@ -136,16 +136,16 @@ class ObstacleAvoidanceStep(State):
         #en train de coulisser face  à l'obstacle step 1
         elif(cntr_vect[0]<self.overshoot and cntr_vect[1]==0):
             if avoiding_side == Direction.right:
-                self.pc.right(mn.DISTANCE_STANDART_STEP)
+                self.pc.right(mn.DISTANCE_STANDARD_STEP)
             else:
-                self.pc.left(mn.DISTANCE_STANDART_STEP)
+                self.pc.left(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[0]+=1
             cntr_vect[1]=0
             return cntr_vect
 
             # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
         elif(cntr_vect[0]==self.overshoot and cntr_vect[1]==0):
-            self.pc.back(mn.DISTANCE_STANDART_STEP)
+            self.pc.back(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[1]+=1
             return cntr_vect
 
@@ -155,14 +155,14 @@ class ObstacleAvoidanceStep(State):
 
         elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot):
             if(cntr_vect[1]<self.preshoot): 
-                self.pc.back(mn.DISTANCE_STANDART_STEP)
+                self.pc.back(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
             elif(cntr_vect[1]==self.preshoot and 
                 ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) or
                 (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR))): 
-                self.pc.back(mn.DISTANCE_STANDART_STEP)
+                self.pc.back(mn.DISTANCE_STANDARD_STEP)
             elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR) and cntr_vect[2]<self.overshoot):
-                self.pc.back(mn.DISTANCE_STANDART_STEP)
+                self.pc.back(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
             
             return cntr_vect
@@ -175,9 +175,9 @@ class ObstacleAvoidanceStep(State):
                     return cntr_vect
                 else:
                     if(avoiding_side == Direction.right): 
-                        self.pc.left(mn.DISTANCE_STANDART_STEP)
+                        self.pc.left(mn.DISTANCE_STANDARD_STEP)
                     else:  
-                        self.pc.right(mn.DISTANCE_STANDART_STEP)
+                        self.pc.right(mn.DISTANCE_STANDARD_STEP)
                 return cntr_vect
 
             else: 
@@ -210,9 +210,9 @@ class ObstacleAvoidanceStep(State):
             ## peut etre ajouter condition de border
             
             if avoiding_side == Direction.forward:
-                self.pc.forward(mn.DISTANCE_STANDART_STEP)
+                self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             else:
-                self.pc.back(mn.DISTANCE_STANDART_STEP)
+                self.pc.back(mn.DISTANCE_STANDARD_STEP)
             #si obstacle mais pas en overshoot : cntr = 0.
             return [0,0,0,1]
 
@@ -222,9 +222,9 @@ class ObstacleAvoidanceStep(State):
             
             
             if avoiding_side == Direction.forward:
-                self.pc.forward(mn.DISTANCE_STANDART_STEP)
+                self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             else:
-                self.pc.back(mn.DISTANCE_STANDART_STEP)
+                self.pc.back(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[0]+=1
             cntr_vect[1]=0
             
@@ -233,7 +233,7 @@ class ObstacleAvoidanceStep(State):
             # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
         elif(cntr_vect[0]==self.overshoot and cntr_vect[1]==0):
             
-            self.pc.right(mn.DISTANCE_STANDART_STEP)
+            self.pc.right(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[1]+=1
             
             return cntr_vect
@@ -243,21 +243,22 @@ class ObstacleAvoidanceStep(State):
         # manoeuvre de preshoot en action, drone sur le _ du U: 
 
         elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot):
+            print("ligne droite pour dpasser")
             
             if(cntr_vect[1]<self.preshoot): 
-                
-                self.pc.right(mn.DISTANCE_STANDART_STEP)
+                print("je fais le preshoot et cnt vect 1 =", cntr_vect[1] )
+                self.pc.right(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
                 
             elif(cntr_vect[1]==self.preshoot and 
                 ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR) or
                 (isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR))): 
-                
-                self.pc.right(mn.DISTANCE_STANDART_STEP)
+                print("je vois encore l'bstacle")
+                self.pc.right(mn.DISTANCE_STANDARD_STEP)
             elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR)
                     and cntr_vect[2]<self.overshoot):
                 
-                self.pc.right(mn.DISTANCE_STANDART_STEP)
+                self.pc.right(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
 
             return cntr_vect
@@ -265,15 +266,16 @@ class ObstacleAvoidanceStep(State):
         elif(cntr_vect[2]==self.overshoot):
             
             if(U_trajectory):
+                print("u traj" )
                 if((abs(self.pc._x-self.line_pos_x)<mn.TOLERANCE_DIST)):
                     cntr_vect = [0,0,0,0]
     #               cntr_vect[3]=False
                     return cntr_vect
                 else:
                     if(avoiding_side == Direction.forward): 
-                        self.pc.back(mn.DISTANCE_STANDART_STEP)
+                        self.pc.back(mn.DISTANCE_STANDARD_STEP)
                     else:  
-                        self.pc.forward(mn.DISTANCE_STANDART_STEP)
+                        self.pc.forward(mn.DISTANCE_STANDARD_STEP)
 
                 return cntr_vect
 
@@ -305,9 +307,9 @@ class ObstacleAvoidanceStep(State):
             #MEMOIRE DE LA POSITION EN X POUR Y REVENIR 
             ## peut etre ajouter condition de border
             if avoiding_side == Direction.forward:
-                self.pc.forward(mn.DISTANCE_STANDART_STEP)
+                self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             else:
-                self.pc.back(mn.DISTANCE_STANDART_STEP)
+                self.pc.back(mn.DISTANCE_STANDARD_STEP)
             #si obstacle mais pas en overshoot : cntr = 0.
             return [0,0,0,1]
 
@@ -315,16 +317,16 @@ class ObstacleAvoidanceStep(State):
         #en train de coulisser face  à l'obstacle step 1
         elif(cntr_vect[0]<self.overshoot and cntr_vect[1]==0):
             if avoiding_side == Direction.forward:
-                self.pc.forward(mn.DISTANCE_STANDART_STEP)
+                self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             else:
-                self.pc.back(mn.DISTANCE_STANDART_STEP)
+                self.pc.back(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[0]+=1
             cntr_vect[1]=0
             return cntr_vect
 
             # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
         elif(cntr_vect[0]==self.overshoot and cntr_vect[1]==0):
-            self.pc.left(mn.DISTANCE_STANDART_STEP)
+            self.pc.left(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[1]+=1
             return cntr_vect
 
@@ -334,15 +336,15 @@ class ObstacleAvoidanceStep(State):
 
         elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot):
             if(cntr_vect[1]<self.preshoot): 
-                self.pc.left(mn.DISTANCE_STANDART_STEP)
+                self.pc.left(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
             elif(cntr_vect[1]==self.preshoot and 
                 ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR) or
                 (isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR))): 
-                self.pc.left(mn.DISTANCE_STANDART_STEP)
+                self.pc.left(mn.DISTANCE_STANDARD_STEP)
             elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR)
                     and cntr_vect[2]<self.overshoot):
-                self.pc.left(mn.DISTANCE_STANDART_STEP)
+                self.pc.left(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
             return cntr_vect
 
@@ -354,9 +356,9 @@ class ObstacleAvoidanceStep(State):
                     return cntr_vect
                 else:
                     if(avoiding_side == Direction.forward): 
-                        self.pc.back(mn.DISTANCE_STANDART_STEP)
+                        self.pc.back(mn.DISTANCE_STANDARD_STEP)
                     else:  
-                        self.pc.forward(mn.DISTANCE_STANDART_STEP)
+                        self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             
                 return cntr_vect
 

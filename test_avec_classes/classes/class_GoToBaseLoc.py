@@ -47,13 +47,13 @@ class GoToBaseLoc(State):
              or self.cntr_vect[3] == True):
                 self.cntr_vect = self.obstacle_step.avoid_right_side(Direction.back, self.cntr_vect, U_trajectory = False)
             else : 
-                self.pc.right(mn.DISTANCE_STANDART_STEP)
+                self.pc.right(mn.DISTANCE_STANDARD_STEP)
         elif self.pc._y < ((self.y_init+mn.DIST_BASE_SEARCH_MAP) - mn.EPSILON_PREC):
             if ((isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR) 
              or self.cntr_vect[3] == True):
                 self.cntr_vect = self.obstacle_step.avoid_left_side(Direction.back, self.cntr_vect, U_trajectory = False)
             else : 
-                self.pc.left(mn.DISTANCE_STANDART_STEP)
+                self.pc.left(mn.DISTANCE_STANDARD_STEP)
             
         else:
             self.state_gtbl = State_gtbl.vert
@@ -64,7 +64,7 @@ class GoToBaseLoc(State):
              or self.cntr_vect[3] == True):
                 self.cntr_vect = self.obstacle_step.avoid_backward(Direction.right, self.cntr_vect, U_trajectory = True)
             else : 
-                self.pc.back(mn.DISTANCE_STANDART_STEP)
+                self.pc.back(mn.DISTANCE_STANDARD_STEP)
         else: #we are at the base coord, without detecting it
             self.state_gtbl = State_gtbl.at_pos_no_step_found
 

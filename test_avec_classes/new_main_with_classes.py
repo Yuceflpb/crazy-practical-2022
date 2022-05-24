@@ -20,13 +20,13 @@ from classes.class_obstacle_avoidance import ObstacleAvoidanceStep
 
 
 # URI to the Crazyflie to connect to
-uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E770')
+uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E7E7')
 
 cflib.crtp.init_drivers()
 
 #récupérer ca quand on lance le programme, ou hardcode
 x_init = 0.
-y_init = 1.
+y_init = 0.
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     with PositionHlCommander(scf, x= x_init, y=y_init) as pc:
@@ -47,7 +47,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             #state classes inits
             refine_target = RefineTarget(scf, pc, multiranger)
             go_to_base_loc = GoToBaseLoc(scf, pc, multiranger, y_init)
-            # refine_base = RefineTarget(scf, pc, multiranger) #normalement on peux reprendre l'autre object
+            refine_base = RefineTarget(scf, pc, multiranger)
             
             obstacle_step = ObstacleAvoidanceStep(scf, pc, multiranger)
 
@@ -68,13 +68,17 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             
             #for obs avoidance
             cntr_vect = [0,0,0,0]
-
+            obstacle_seen = False
+            optimized_direction = Direction.right
             #for zigzag
             counter_zig_zag = 0 
             
             #for step detec
             prev_down_dist = multiranger._down_distance
             array_down_dist = None
+
+
+            
 
             #---INFINITE WHILE LOOP---#
             while True:
@@ -90,13 +94,17 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     if(pc._x < 3.5 or cntr_vect[3] == True):
                         if ((multiranger._front_distance, float) and (multiranger._front_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True) :
-                            if(pc._y > 1.5):
-                                cntr_vect = obstacle_step.avoid_forward(Direction.right, cntr_vect, U_trajectory = False)
-                            else:
-                                cntr_vect = obstacle_step.avoid_forward(Direction.left, cntr_vect, U_trajectory = False)
+                            if(obstacle_seen == False):
+                                if(pc._y > 1.5):
+                                    optimized_direction = Direction.right
+                                else:
+                                    optimized_direction = Direction.left
+                                obstacle_seen = True
+                            cntr_vect = obstacle_step.avoid_forward(optimized_direction, cntr_vect, U_trajectory = False)
                         else:
-                            pc.forward(mn.DISTANCE_STANDART_STEP)
+                            pc.forward(mn.DISTANCE_STANDARD_STEP)
                     else:
+                        obstacle_seen = False
                         cntr_vect = [0,0,0,0]
                         state = State.search_target
                         run_once_search_target = True
@@ -134,7 +142,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             or cntr_vect[3] == True):
                             cntr_vect = obstacle_step.avoid_right_side(Direction.forward, cntr_vect, U_trajectory = True)
                         else : 
-                            pc.right(mn.DISTANCE_STANDART_STEP)
+                            pc.right(mn.DISTANCE_STANDARD_STEP)
                         
                         if (abs(mn.Y_LIMRIGHT - pc._y)< mn.TOLERANCE_DIST): # If has reached the right border of the map
                             print('arrived at border')
@@ -148,7 +156,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             or cntr_vect[3] == True):
                             cntr_vect = obstacle_step.avoid_left_side(Direction.forward, cntr_vect, U_trajectory = True)
                         else : 
-                            pc.left(mn.DISTANCE_STANDART_STEP)
+                            pc.left(mn.DISTANCE_STANDARD_STEP)
                         
                         if (abs(mn.Y_LIMLEFT - pc._y)< mn.TOLERANCE_DIST): # If has reached the right border of the map
                             print('arrived at border')
@@ -171,7 +179,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                                 cntr_vect = obstacle_step.avoid_forward(Direction.left, cntr_vect, U_trajectory = False)
                         else:
                             #print('prev x = ', prev_x_pos, 'now x = ', pc._x)
-                            pc.forward(mn.DISTANCE_STANDART_STEP)
+                            pc.forward(mn.DISTANCE_STANDARD_STEP)
 
                         if pc._x > prev_x_pos+mn.ZIG_ZAG_MARGIN:
                             #print('fin de forward, continue')
@@ -277,7 +285,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             or cntr_vect[3] == True):
                             cntr_vect = obstacle_step.avoid_right_side(Direction.forward, cntr_vect, U_trajectory = True)
                         else : 
-                            pc.right(mn.DISTANCE_STANDART_STEP)
+                            pc.right(mn.DISTANCE_STANDARD_STEP)
                         
                         if (pc._y < mn.TOLERANCE_DIST): # If has reached the right border of the map
                             print('arrived at border')
@@ -288,14 +296,14 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                             or cntr_vect[3] == True):
                             cntr_vect = obstacle_step.avoid_left_side(Direction.forward, cntr_vect, U_trajectory = True)
                         else : 
-                            pc.left(mn.DISTANCE_STANDART_STEP)
+                            pc.left(mn.DISTANCE_STANDARD_STEP)
                         
                         if (pc._y < (y_init+mn.DIST_BASE_SEARCH_MAP) - mn.TOLERANCE_DIST):
                             print('arrived at border')
                         else : direction_sb = direction_sb.back
                         
                     elif direction_sb == Direction.back:
-                        pc.back(mn.DISTANCE_STANDART_STEP)
+                        pc.back(mn.DISTANCE_STANDARD_STEP)
                         counter_zig_zag += 1
                         if counter_zig_zag == mn.ZIG_ZAG_MARGIN:
                             if pc._y < mn.TOLERANCE_DIST: direction_sb = direction_sb.left
@@ -328,8 +336,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     #print("in state refine base")
                     if run_once_refine_base:
                         run_once_refine_base = False
-                        refine_target.run_once(direction_comming) #reuse of the class
-                    finish = refine_target.step()
+                        refine_base.run_once(direction_comming) #reuse of the class
+                    finish = refine_base.step()
                     if finish:
                         state = State.landing_base
 
@@ -344,7 +352,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                 elif state == State.debug_refine_target:
                     
 
-                    pc.forward(mn.DISTANCE_STANDART_STEP)
+                    pc.forward(mn.DISTANCE_STANDARD_STEP)
                     
                     z_meas_ctr += 1
                     if z_meas_ctr == mn.MAX_CTR_Z_MEAS:

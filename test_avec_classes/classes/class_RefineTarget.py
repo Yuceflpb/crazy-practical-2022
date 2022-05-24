@@ -107,13 +107,13 @@ class RefineTarget(State):
     def step_off(self):
         #go in the direction of comming
         if self.direction_comming == Direction.forward:
-            self.pc.forward(mn.DISTANCE_STANDART_STEP)
+            self.pc.forward(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.left:
-            self.pc.left(mn.DISTANCE_STANDART_STEP)
+            self.pc.left(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.right:
-            self.pc.right(mn.DISTANCE_STANDART_STEP)
+            self.pc.right(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.back:
-            self.pc.back(mn.DISTANCE_STANDART_STEP)
+            self.pc.back(mn.DISTANCE_STANDARD_STEP)
 
         #security if the overshoot with fast speed goes beyond the box
         self.security_ctr_step_off += 1
@@ -159,13 +159,13 @@ class RefineTarget(State):
     def step_back_on(self):
         #direction oposide to incomming to step on the box we just step of 
         if self.direction_comming == Direction.forward:
-            self.pc.back(mn.DISTANCE_STANDART_STEP)
+            self.pc.back(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.left:
-            self.pc.right(mn.DISTANCE_STANDART_STEP)
+            self.pc.right(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.right:
-            self.pc.left(mn.DISTANCE_STANDART_STEP)
+            self.pc.left(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.back:
-            self.pc.forward(mn.DISTANCE_STANDART_STEP)
+            self.pc.forward(mn.DISTANCE_STANDARD_STEP)
 
         
         if self.step_up_detection():
@@ -199,13 +199,13 @@ class RefineTarget(State):
     def step_off_side(self):
         #go in the direction perpendicular to comming
         if self.direction_comming == Direction.forward:
-            self.pc.right(mn.DISTANCE_STANDART_STEP)
+            self.pc.right(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.left:
-            self.pc.forward(mn.DISTANCE_STANDART_STEP)
+            self.pc.forward(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.right:
-            self.pc.forward(mn.DISTANCE_STANDART_STEP)
+            self.pc.forward(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.back:
-            self.pc.right(mn.DISTANCE_STANDART_STEP)
+            self.pc.right(mn.DISTANCE_STANDARD_STEP)
 
 
         if self.step_down_detection():
@@ -242,13 +242,13 @@ class RefineTarget(State):
     def step_back_on_side(self):
         #direction oposide the one we just step off 
         if self.direction_comming == Direction.forward:
-            self.pc.left(mn.DISTANCE_STANDART_STEP)
+            self.pc.left(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.left:
-            self.pc.back(mn.DISTANCE_STANDART_STEP)
+            self.pc.back(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.right:
-            self.pc.back(mn.DISTANCE_STANDART_STEP)
+            self.pc.back(mn.DISTANCE_STANDARD_STEP)
         elif self.direction_comming == Direction.back:
-            self.pc.left(mn.DISTANCE_STANDART_STEP)
+            self.pc.left(mn.DISTANCE_STANDARD_STEP)
 
         
         if self.step_up_detection():
