@@ -21,8 +21,8 @@ class RefineTarget(State):
         self.state_rt = State_refine_target.step_off
 
         self.direction_comming = None
-        self.coord_target_detec = None #tuple
-        self.coord_step_off_side = None #tuple
+        #self.coord_target_detec = None #tuple
+        #self.coord_step_off_side = None #tuple
         self.prev_down_dist = None
         #self.z_meas_ctr = 0 #for old way measuring
         self.security_ctr_step_off = 0
@@ -33,7 +33,7 @@ class RefineTarget(State):
     
     def run_once(self, direction_comming ):
         self.direction_comming = direction_comming
-        self.coord_target_detec = (self.pc._x,self.pc._y)
+        #self.coord_target_detec = (self.pc._x,self.pc._y)
         self.prev_down_dist = self.multiranger._down_distance
         self.pc.set_default_velocity(mn.SLOWER_SPEED)
 
@@ -81,7 +81,7 @@ class RefineTarget(State):
         #     self.prev_down_dist = self.multiranger._down_distance
         #     self.z_meas_ctr = 0
     
-    def step_detection(self):
+    def step_detection(self): #not used
         step_detected = isinstance(self.multiranger._down_distance, float) and\
                         isinstance(self.prev_down_dist, float) and\
                         abs(self.multiranger._down_distance - self.prev_down_dist) >= mn.Z_DETEC_TRESHOLD
@@ -115,7 +115,7 @@ class RefineTarget(State):
         elif self.direction_comming == Direction.back:
             self.pc.back(mn.DISTANCE_STANDARD_STEP)
 
-        #security if the overshoot with fast speed goes beyond the box
+        #security to clearly overshoot the obstacles
         self.security_ctr_step_off += 1
         if self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF:
             
@@ -167,7 +167,6 @@ class RefineTarget(State):
         elif self.direction_comming == Direction.back:
             self.pc.forward(mn.DISTANCE_STANDARD_STEP)
 
-        
         if self.step_up_detection():
             
             print("I just stepped back on")
@@ -187,8 +186,6 @@ class RefineTarget(State):
             #time to stabilize
             time.sleep(mn.WAITING_TIME)
 
-            ##ICI faudrait coriger les coordonnées
-
             #measure distance ON the box
             self.prev_down_dist = self.multiranger._down_distance
             self.array_down_dist = np.full(mn.NB_ELEM_MEAN, self.prev_down_dist)
@@ -207,13 +204,12 @@ class RefineTarget(State):
         elif self.direction_comming == Direction.back:
             self.pc.right(mn.DISTANCE_STANDARD_STEP)
 
-
         if self.step_down_detection():
 
             print("I just stepped off on the side")
 
             #register coordinates of step of side
-            self.coord_step_off_side = (self.pc._x, self.pc._y)
+            #self.coord_step_off_side = (self.pc._x, self.pc._y)
 
             #time to stabilize
             time.sleep(mn.WAITING_TIME_LONG)
