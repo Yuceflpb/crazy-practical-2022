@@ -30,7 +30,7 @@ x_init = 0.
 y_init = 0.
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
-    with PositionHlCommander(scf) as pc:
+    with PositionHlCommander(scf, default_height= 0.3) as pc:
         with Multiranger(scf) as multiranger:
             
             #---ONE TIME INITIALIZATION---#
@@ -285,30 +285,29 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     
                     ## GOING ->
                     if direction_sb == Direction.right: 
-                        print("avoid right")
+                        #print("going right")
                         if ((isinstance(multiranger._right_distance, float) and multiranger._right_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
                             cntr_vect = obstacle_step.avoid_right_side(Direction.forward, cntr_vect, U_trajectory = True)
                         else : 
                             pc.right(mn.DISTANCE_STANDARD_STEP)
-                        
-                        if ((pc._y < (y_init-mn.DIST_BASE_SEARCH_MAP) + mn.TOLERANCE_DIST) or cntr_vect[3] == True): # If has reached the right border of the map
-                            print('pc.y =', pc._y)
-                            print('margin =', (y_init-mn.DIST_BASE_SEARCH_MAP) + mn.TOLERANCE_DIST)
-                            print('arrived at border')
-                            direction_sb = direction_sb.back
+                            if ((pc._y < (y_init-mn.DIST_BASE_SEARCH_MAP) + mn.TOLERANCE_DIST)): # If has reached the right border of the map
+                                print('pc.y =', pc._y)
+                                print('margin =', (y_init-mn.DIST_BASE_SEARCH_MAP) + mn.TOLERANCE_DIST)
+                                print('arrived at border')
+                                direction_sb = direction_sb.back
                     
                     elif direction_sb == Direction.left:
-                        print("avoid left")
+                        print("going left")
                         if ((isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
                             cntr_vect = obstacle_step.avoid_left_side(Direction.forward, cntr_vect, U_trajectory = True)
                         else : 
                             pc.left(mn.DISTANCE_STANDARD_STEP)
                         
-                        if ((pc._y > (y_init+mn.DIST_BASE_SEARCH_MAP) - mn.TOLERANCE_DIST) or cntr_vect[3] == True):
-                            print('arrived at border')
-                            direction_sb = direction_sb.back
+                            if ((pc._y > (y_init+mn.DIST_BASE_SEARCH_MAP) - mn.TOLERANCE_DIST)):
+                                print('arrived at border')
+                                direction_sb = direction_sb.back
                         
                     elif direction_sb == Direction.back:
                         print("back sb")

@@ -107,18 +107,18 @@ class RefineTarget(State):
     def step_off(self):
         #go in the direction of comming
         if self.direction_comming == Direction.forward:
-            self.pc.forward(mn.DISTANCE_STANDARD_STEP)
+            self.pc.forward(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.left:
-            self.pc.left(mn.DISTANCE_STANDARD_STEP)
+            self.pc.left(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.right:
-            self.pc.right(mn.DISTANCE_STANDARD_STEP)
+            self.pc.right(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.back:
-            self.pc.back(mn.DISTANCE_STANDARD_STEP)
+            self.pc.back(mn.DISTANCE_REFINE_STEP)
 
         #security to clearly overshoot the obstacles
         self.security_ctr_step_off += 1
         # and check if an obstacle is on the way
-        if self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF or\
+        if self.security_ctr_step_off > mn.SECURITY_CTR_MAX_STEP_OFF*2 or\
            self.multiranger._front_distance <= mn.THRESHOLD_SENSOR_REFINE_TARGET:
             
             print("J'ai assez avancer")
@@ -161,13 +161,13 @@ class RefineTarget(State):
     def step_back_on(self):
         #direction oposide to incomming to step on the box we just step of 
         if self.direction_comming == Direction.forward:
-            self.pc.back(mn.DISTANCE_STANDARD_STEP)
+            self.pc.back(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.left:
-            self.pc.right(mn.DISTANCE_STANDARD_STEP)
+            self.pc.right(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.right:
-            self.pc.left(mn.DISTANCE_STANDARD_STEP)
+            self.pc.left(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.back:
-            self.pc.forward(mn.DISTANCE_STANDARD_STEP)
+            self.pc.forward(mn.DISTANCE_REFINE_STEP)
 
         if self.step_up_detection():
             
@@ -198,13 +198,13 @@ class RefineTarget(State):
     def step_off_side(self):
         #go in the direction perpendicular to comming
         if self.direction_comming == Direction.forward:
-            self.pc.right(mn.DISTANCE_STANDARD_STEP)
+            self.pc.right(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.left:
-            self.pc.forward(mn.DISTANCE_STANDARD_STEP)
+            self.pc.forward(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.right:
-            self.pc.forward(mn.DISTANCE_STANDARD_STEP)
+            self.pc.forward(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.back:
-            self.pc.right(mn.DISTANCE_STANDARD_STEP)
+            self.pc.right(mn.DISTANCE_REFINE_STEP)
 
         if self.step_down_detection():
 
@@ -240,13 +240,13 @@ class RefineTarget(State):
     def step_back_on_side(self):
         #direction oposide the one we just step off 
         if self.direction_comming == Direction.forward:
-            self.pc.left(mn.DISTANCE_STANDARD_STEP)
+            self.pc.left(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.left:
-            self.pc.back(mn.DISTANCE_STANDARD_STEP)
+            self.pc.back(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.right:
-            self.pc.back(mn.DISTANCE_STANDARD_STEP)
+            self.pc.back(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.back:
-            self.pc.left(mn.DISTANCE_STANDARD_STEP)
+            self.pc.left(mn.DISTANCE_REFINE_STEP)
 
         
         if self.step_up_detection():
