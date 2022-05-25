@@ -25,8 +25,8 @@ uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E7E7')
 cflib.crtp.init_drivers()
 
 #récupérer ca quand on lance le programme, ou hardcode
-x_init = 1
-y_init = 1
+x_init = 0.85
+y_init = 0.5
 
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     with PositionHlCommander(scf, default_height= 0.3) as pc:
@@ -41,8 +41,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             #state = State.debug_refine_target #define the one we want to debug
             #state = State.debug_go_to_base_loc
             #state = State.go_to_target_zone
-            state = State.search_target
-            #state = State.take_off_from_base
+            #state = State.search_target
+            state = State.take_off_from_base
             
 
             #state classes inits
@@ -87,7 +87,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
             #---INFINITE WHILE LOOP---#
             while True:
-                #print('pc x=', pc._x,'y = ', pc._y)
+                print('pc x=', pc._x,'y = ', pc._y)
                 if state == State.take_off_from_base:
                     #implement
                     state = State.go_to_target_zone
@@ -148,7 +148,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else : 
                             pc.right(mn.DISTANCE_STANDARD_STEP)
                         
-                            if pc._y<mn.Y_LIMRIGHT: # If has reached the right border of the map
+                            if pc._y + y_init < mn.Y_LIMRIGHT: # If has reached the right border of the map
                                 print('arrived at border')
                                 if first_crossing == True : 
                                     direction_st=direction_st.left
@@ -169,7 +169,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         else : 
                             pc.left(mn.DISTANCE_STANDARD_STEP)
                         
-                            if pc._y>mn.Y_LIMLEFT: # If has reached the right border of the map
+                            if pc._y + y_init > mn.Y_LIMLEFT: # If has reached the right border of the map
                                 print('arrived at border')
                                 if first_crossing == True : 
                                     direction_st=direction_st.right
@@ -257,9 +257,9 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         state = State.landing_target
                 
                 elif state == State.landing_target:
-                    pc.set_default_velocity(mn.SLOWER_SPEED)
-                    pc.land()
-                    pc.set_default_velocity(mn.FASTER_SPEED)
+                    #pc.set_default_velocity(mn.SLOWER_SPEED)
+                    pc.land(velocity = 0.2)
+                    
                     print("landed on taget")
 
                     time.sleep(3)
@@ -267,8 +267,8 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     #break #remoove when done
 
                 elif state == State.take_off_from_target:
-                    pc.take_off()
-                    
+                    pc.take_off(velocity=0.1) #si ca bug, faut mettre standart a 0.5 m/s
+                    #pc.set_default_velocity(mn.FASTER_SPEED)
 
                     time.sleep(2)
                     state = State.go_to_base_loc
@@ -279,14 +279,15 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                     go_base = go_to_base_loc.step()
                     if go_base:
                         state = State.search_base
-                        time.sleep(2)
+                        time.sleep(mn.WAITING_TIME)
                         
                         
                 
                 elif state == State.search_base:
                     print("in state search base")
                     if run_once_search_base:
-                        print('INIT SEARCH TARGET')
+                        print('INIT SEARCH TARGET, coord : ', pc._x, pc._y)
+
                         direction_sb = Direction.right
 
                         x_line_pos= pc._x + x_init
@@ -305,10 +306,10 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         #print("going right")
                         if ((isinstance(multiranger._right_distance, float) and multiranger._right_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
-                            cntr_vect = obstacle_step.avoid_right_side(Direction.forward, cntr_vect, U_trajectory = True)
+                            cntr_vect = obstacle_step.avoid_right_side(Direction.back, cntr_vect, U_trajectory = True)
                         else : 
                             pc.right(mn.DISTANCE_STANDARD_STEP)
-                            if (pc._y < -mn.DIST_BASE_SEARCH_MAP): # If has reached the border of search area
+                            if (pc._y< -mn.DIST_BASE_SEARCH_MAP): # If has reached the border of search area
                                 print('pc.y =', pc._y)
                                 print('margin =', (y_init-mn.DIST_BASE_SEARCH_MAP) + mn.TOLERANCE_DIST)
                                 print('arrived at border')
@@ -318,7 +319,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
                         #print("going left")
                         if ((isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
-                            cntr_vect = obstacle_step.avoid_left_side(Direction.forward, cntr_vect, U_trajectory = True)
+                            cntr_vect = obstacle_step.avoid_left_side(Direction.back, cntr_vect, U_trajectory = True)
                         else : 
                             pc.left(mn.DISTANCE_STANDARD_STEP)
                         
