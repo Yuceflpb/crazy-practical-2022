@@ -30,7 +30,6 @@ class ObstacleAvoidanceStep(State):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
         
         if(not(cntr_vect[3])):
-            print("avoid forward")
             self.line_pos_y = self.pc._y
             cntr_vect[3] = True
         
@@ -79,9 +78,9 @@ class ObstacleAvoidanceStep(State):
             if(cntr_vect[1]<self.preshoot): 
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
-            elif(cntr_vect[1]==self.preshoot and ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) or (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR))): 
+            elif(cntr_vect[1]==self.preshoot and ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
-            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR) and cntr_vect[2]<self.overshoot):
+            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE) and cntr_vect[2]<self.overshoot):
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
         
@@ -104,7 +103,6 @@ class ObstacleAvoidanceStep(State):
                 return cntr_vect
     
         else:
-            print("probleme dans les if")
             cntr_vect = [0,0,0,0]
             return cntr_vect
     
@@ -113,7 +111,6 @@ class ObstacleAvoidanceStep(State):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
         
         if(not(cntr_vect[3])):
-            print("avoid backward")
             self.line_pos_y = self.pc._y
             cntr_vect[3] = True
         
@@ -158,10 +155,10 @@ class ObstacleAvoidanceStep(State):
                 self.pc.back(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
             elif(cntr_vect[1]==self.preshoot and 
-                ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) or
-                (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR))): 
+                ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or
+                (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
                 self.pc.back(mn.DISTANCE_STANDARD_STEP)
-            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR) and cntr_vect[2]<self.overshoot):
+            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE) and cntr_vect[2]<self.overshoot):
                 self.pc.back(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
             
@@ -185,7 +182,6 @@ class ObstacleAvoidanceStep(State):
     #           cntr_vect[3]=False
                 return cntr_vect
         else:
-            print("probleme dans les if")
             cntr_vect = [0,0,0,0]
             return cntr_vect
 
@@ -194,7 +190,6 @@ class ObstacleAvoidanceStep(State):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
         
         if(not(cntr_vect[3])):
-            print("avoid right side")
             self.line_pos_x = self.pc._x
             cntr_vect[3] = True
         
@@ -249,10 +244,10 @@ class ObstacleAvoidanceStep(State):
                 cntr_vect[1]+=1
                 
             elif(cntr_vect[1]==self.preshoot and 
-                ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR) or
-                (isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR))): 
+                ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or
+                (isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
-            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR)
+            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE)
                     and cntr_vect[2]<self.overshoot):
                 
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
@@ -282,7 +277,6 @@ class ObstacleAvoidanceStep(State):
                 return cntr_vect
 
         else:
-            print("probleme dans les if")
             cntr_vect = [0,0,0,0]
             return cntr_vect
         
@@ -291,7 +285,6 @@ class ObstacleAvoidanceStep(State):
         #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
         
         if(not(cntr_vect[3])):
-            print("avoid left side")
             self.line_pos_x = self.pc._x
             cntr_vect[3] = True
         
@@ -338,10 +331,10 @@ class ObstacleAvoidanceStep(State):
                 self.pc.left(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
             elif(cntr_vect[1]==self.preshoot and 
-                ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR) or
-                (isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR))): 
+                ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or
+                (isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
                 self.pc.left(mn.DISTANCE_STANDARD_STEP)
-            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR)
+            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE)
                     and cntr_vect[2]<self.overshoot):
                 self.pc.left(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
@@ -367,6 +360,5 @@ class ObstacleAvoidanceStep(State):
     #           cntr_vect[3]=False
                 return cntr_vect
         else:
-            print("probleme dans les if")
             cntr_vect = [0,0,0,0]
             return cntr_vect

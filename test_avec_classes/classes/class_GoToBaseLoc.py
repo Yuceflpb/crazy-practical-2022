@@ -15,14 +15,12 @@ class State_gtbl(Enum):
     at_pos_no_step_found = 3
 
 class GoToBaseLoc(State):
-    def __init__(self, scf, pc, multiranger, y_init, x_init):
+    def __init__(self, scf, pc, multiranger, y_init):
         super().__init__(scf, pc, multiranger)
 
-        self.y_init = y_init
-        self.x_init = x_init
         self.optimized_direction = False
         self.obstacle_step = ObstacleAvoidanceStep(scf, pc, multiranger)
-
+        self.y_init = y_init
         self.state_gtbl = State_gtbl.horiz
 
         self.z_meas_ctr = mn.MAX_CTR_Z_MEAS - 1
@@ -42,32 +40,48 @@ class GoToBaseLoc(State):
             return True
 
     def go_to_y_coord(self):
-        if (self.pc._y > ((self.y_init + mn.DIST_BASE_SEARCH_MAP) + mn.EPSILON_PREC)) or self.cntr_vect[3] == True:
-            if ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) 
-             or self.cntr_vect[3] == True):
-                self.cntr_vect = self.obstacle_step.avoid_right_side(Direction.back, self.cntr_vect, U_trajectory = False)
-            else : 
-                self.pc.right(mn.DISTANCE_STANDARD_STEP)
-        elif self.pc._y < ((self.y_init+mn.DIST_BASE_SEARCH_MAP) - mn.EPSILON_PREC):
-            if ((isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR) 
-             or self.cntr_vect[3] == True):
-                self.cntr_vect = self.obstacle_step.avoid_left_side(Direction.back, self.cntr_vect, U_trajectory = False)
-            else : 
-                self.pc.left(mn.DISTANCE_STANDARD_STEP)
-            
+
+        if (self.y_init < mn.Y_MIDDLE):
+            if (self.pc._y > ((mn.DIST_BASE_SEARCH_MAP) + mn.EPSILON_PREC)) or self.cntr_vect[3] == True:
+                if ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) 
+                or self.cntr_vect[3] == True):
+                    self.cntr_vect = self.obstacle_step.avoid_right_side(Direction.back, self.cntr_vect, U_trajectory = False)
+                else : 
+                    self.pc.right(mn.DISTANCE_STANDARD_STEP)
+            elif self.pc._y < ((mn.DIST_BASE_SEARCH_MAP) - mn.EPSILON_PREC):
+                if ((isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR) 
+                or self.cntr_vect[3] == True):
+                    self.cntr_vect = self.obstacle_step.avoid_left_side(Direction.back, self.cntr_vect, U_trajectory = False)
+                else : 
+                    self.pc.left(mn.DISTANCE_STANDARD_STEP)
+                
+            else:
+                self.state_gtbl = State_gtbl.vert
         else:
-            self.state_gtbl = State_gtbl.vert
+            if (self.pc._y > ((- mn.DIST_BASE_SEARCH_MAP) + mn.EPSILON_PREC)) or self.cntr_vect[3] == True:
+                if ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR) 
+                or self.cntr_vect[3] == True):
+                    self.cntr_vect = self.obstacle_step.avoid_right_side(Direction.back, self.cntr_vect, U_trajectory = False)
+                else : 
+                    self.pc.right(mn.DISTANCE_STANDARD_STEP)
+            elif self.pc._y < ((- mn.DIST_BASE_SEARCH_MAP) - mn.EPSILON_PREC):
+                if ((isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR) 
+                or self.cntr_vect[3] == True):
+                    self.cntr_vect = self.obstacle_step.avoid_left_side(Direction.back, self.cntr_vect, U_trajectory = False)
+                else : 
+                    self.pc.left(mn.DISTANCE_STANDARD_STEP)
+                
+            else:
+                self.state_gtbl = State_gtbl.vert
 
     def go_to_x_coord(self):
-        if (self.pc._x > ((self.x_init + mn.DIST_BASE_SEARCH_MAP) + mn.EPSILON_PREC)) or self.cntr_vect[3] == True:
+        if (self.pc._x > ((mn.DIST_BASE_SEARCH_MAP) + mn.EPSILON_PREC)) or self.cntr_vect[3] == True:
             if ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR) 
              or self.cntr_vect[3] == True):
                 if(self.cntr_vect[3] == False):
-                    if(self.pc._y > mn.Y_MIDDLE):
-                        print("right")
+                    if(self.pc._y +self.y_init > mn.Y_MIDDLE):
                         self.optimized_direction = Direction.right
                     else:
-                        print("left")
                         self.optimized_direction = Direction.left
                 self.cntr_vect = self.obstacle_step.avoid_backward(self.optimized_direction, self.cntr_vect, U_trajectory = True)
             else : 
