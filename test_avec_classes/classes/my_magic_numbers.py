@@ -42,10 +42,4 @@ THRESHOLD_SENSOR_OVERTAKE = 0.8
 THRESHOLD_SENSOR_REFINE_TARGET = 0.4
 
 
-
-
-
-
-
-
-ZIG_ZAG_MARGIN = 0.28 #m
+ZIG_ZAG_MARGIN = 0.28 #m, the distance to move in the search zone

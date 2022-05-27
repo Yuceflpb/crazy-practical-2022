@@ -125,7 +125,7 @@ with SyncCrazyflie(uri, cf) as scf:
                 #### SEARCH TARGET ####
                 #######################        
                 elif state == State.search_target:   
-                    # go dans landing     
+                         
                     if run_once_search_target: #Only done the first time going through this function
                         if pc._y + y_init < mn.Y_MIDDLE:  direction_st = Direction.right
                         else : direction_st = Direction.left
@@ -136,7 +136,6 @@ with SyncCrazyflie(uri, cf) as scf:
                         prev_down_dist = multiranger._down_distance
                         array_down_dist = np.full(mn.NB_ELEM_MEAN, prev_down_dist)
 
-                        #avoid_obstacle_on = False # Will define on which side obstacle avoidance is done
                         first_crossing = True
                         run_once_search_target = False
                     
@@ -154,6 +153,7 @@ with SyncCrazyflie(uri, cf) as scf:
                                     first_crossing=False
                                 else : direction_st = direction_st.forward
                     
+                    ## Going <-
                     elif direction_st == Direction.left:
                         if ((isinstance(multiranger._left_distance, float) and multiranger._left_distance < mn.THRESHOLD_SENSOR) 
                             or cntr_vect[3] == True):
@@ -167,6 +167,7 @@ with SyncCrazyflie(uri, cf) as scf:
                                     first_crossing=False
                                 else : direction_st = direction_st.forward
 
+                    ## Going ^
                     elif direction_st == Direction.forward:
                         if run_once_forward_zigzag:
                             prev_x_pos = pc._x + x_init
@@ -187,8 +188,7 @@ with SyncCrazyflie(uri, cf) as scf:
 
                             run_once_forward_zigzag=True
                     
-                    #detection edge
-
+                    #Edge detection
                     if isinstance(multiranger._down_distance, float) and\
                        isinstance(prev_down_dist, float) and\
                        abs(multiranger._down_distance - prev_down_dist) >= mn.Z_DETEC_TRESHOLD_SEARCH:
@@ -232,15 +232,14 @@ with SyncCrazyflie(uri, cf) as scf:
                     pc.land(velocity = 0.2)
                     time.sleep(mn.WAITING_TIME_LONG)
                     state = State.take_off_from_target
-                    #break #remoove when done
+        
 
                 ##############################
                 #### TAKE OFF FROM TARGET ####
                 ##############################
 
                 elif state == State.take_off_from_target:
-                    pc.take_off(velocity=0.5) #si ca bug, faut mettre standart a 0.5 m/s
-                    #pc.set_default_velocity(mn.FASTER_SPEED)
+                    pc.take_off(velocity=0.5) 
 
                     time.sleep(mn.WAITING_TIME_LONG)
                     state = State.go_to_base_loc
@@ -297,10 +296,10 @@ with SyncCrazyflie(uri, cf) as scf:
                             if (pc._y > mn.DIST_BASE_SEARCH_MAP):
                                 direction_sb = direction_sb.back
 
-                    #GOING back 
+                    ## GOING v
                     elif direction_sb == Direction.back:
                         if run_once_back_zigzag:
-                            prev_x_pos = pc._x #pas de +x_init, c'est compris apres
+                            prev_x_pos = pc._x 
                             run_once_back_zigzag=False
                         
                         if ((isinstance(multiranger._back_distance, float) and multiranger._back_distance < mn.THRESHOLD_SENSOR) 
@@ -336,7 +335,7 @@ with SyncCrazyflie(uri, cf) as scf:
                     array_down_dist[0] = multiranger._down_distance
 
                     prev_down_dist = np.mean(array_down_dist)
-                    ###
+                 
 
 
                 ######################
@@ -395,6 +394,6 @@ with SyncCrazyflie(uri, cf) as scf:
 
                 #arret d'urgence
                 if isinstance(multiranger._up_distance, float) and multiranger._up_distance < 0.2:
-                    print("landing : plafond")
+                    print("landing : upper sensor detection")
                     break
 

@@ -110,7 +110,7 @@ class RefineTarget(State):
             self.state_rt = State_refine_target.step_back_on
 
     def step_back_on(self):
-        #direction oposide to incomming to step on the box we just step of 
+        #direction oposite to incomming to step on the box we just step of 
         if self.direction_comming == Direction.forward:
             self.pc.back(mn.DISTANCE_REFINE_STEP)
         elif self.direction_comming == Direction.left:
