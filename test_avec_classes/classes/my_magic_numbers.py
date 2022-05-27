@@ -7,7 +7,7 @@ BIG_STEP = 0.08 #m
 
 #GLOBAL DISTANCES
 BASE_ZONE_X = 1.5
-TARGET_ZONE_X = 3.5 + 0.2 + 0.2 #patch + optimize searching
+TARGET_ZONE_X = 3.5 + 0.1 + 0.2 #patch + optimize searching
 MAP_LENGHT_X = 5
 Y_LIMRIGHT = 0 - 0.2
 Y_MIDDLE = 1.5
@@ -48,4 +48,4 @@ THRESHOLD_SENSOR_REFINE_TARGET = 0.4
 
 
 
-ZIG_ZAG_MARGIN = 0.35 #m
+ZIG_ZAG_MARGIN = 0.28 #m

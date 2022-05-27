@@ -25,10 +25,15 @@ uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E7E7')
 cflib.crtp.init_drivers()
 
 #récupérer ca quand on lance le programme, ou hardcode
-x_init = 0.3
-y_init = 2.5
+x_init = 0.6
+y_init = 0.7
+cf=Crazyflie(rw_cache='./cache')
 
-with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
+with SyncCrazyflie(uri, cf) as scf:
+    cf.param.set_value('kalman.resetEstimation', '1')
+    time.sleep(0.1)
+    cf.param.set_value('kalman.resetEstimation', '0')
+    time.sleep(2)
     with PositionHlCommander(scf, default_height= 0.3) as pc:
         with Multiranger(scf) as multiranger:
             
