@@ -65,7 +65,7 @@ with SyncCrazyflie(uri, cf) as scf:
             
 
             #other variables
-            direction_comming = None
+            direction_coming = None
 
             #variables for debug
             prev_down_dist_debug = multiranger._down_distance
@@ -161,7 +161,7 @@ with SyncCrazyflie(uri, cf) as scf:
                         else : 
                             pc.left(mn.DISTANCE_STANDARD_STEP)
                         
-                            if pc._y + y_init > mn.Y_LIMLEFT: # If has reached the right border of the map
+                            if pc._y + y_init > mn.Y_LIMLEFT: # If has reached the left border of the map
                                 if first_crossing == True : 
                                     direction_st=direction_st.right
                                     first_crossing=False
@@ -197,9 +197,9 @@ with SyncCrazyflie(uri, cf) as scf:
                         time.sleep(mn.WAITING_TIME)
 
                         state = State.refine_target
-                        direction_comming = direction_st 
+                        direction_coming = direction_st 
                         
-                        print(direction_comming)
+                        print(direction_coming)
 
                     np.roll(array_down_dist, 1)
                     array_down_dist[0] = multiranger._down_distance
@@ -218,7 +218,7 @@ with SyncCrazyflie(uri, cf) as scf:
                     if run_once_refine_target:
                         run_once_refine_target = False
                         #one time inits
-                        refine_target.run_once(direction_comming)
+                        refine_target.run_once(direction_coming)
 
                     finish = refine_target.step()
                     if finish:
@@ -328,7 +328,7 @@ with SyncCrazyflie(uri, cf) as scf:
                         time.sleep(mn.WAITING_TIME)
 
                         state = State.refine_base
-                        direction_comming = direction_sb
+                        direction_coming = direction_sb
                         
 
                     np.roll(array_down_dist, 1)
@@ -345,7 +345,7 @@ with SyncCrazyflie(uri, cf) as scf:
                 elif state == State.refine_base:
                     if run_once_refine_base:
                         run_once_refine_base = False
-                        refine_base.run_once(direction_comming)
+                        refine_base.run_once(direction_coming)
                     finish = refine_base.step()
                     if finish:
                         state = State.landing_base
@@ -384,7 +384,7 @@ with SyncCrazyflie(uri, cf) as scf:
                         time.sleep(mn.WAITING_TIME)
 
                         state = State.refine_target
-                        direction_comming = Direction.forward #test with other  
+                        direction_coming = Direction.forward #test with other  
 
 
                 elif state == State.debug_go_to_base_loc: 

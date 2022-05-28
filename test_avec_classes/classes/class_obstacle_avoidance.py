@@ -20,38 +20,26 @@ class ObstacleAvoidanceStep(State):
         self.line_pos_y = 0
         self.line_pos_x = 0
 
-    #contexte: bas haut
-    #initialiser vecteur a 3 dims en attribut
-
-    #a l'exterieur: obstacle_step n'est appelé QUE quand un objet est DEJA detecté, sinon il va faire nimp. 
-    # output : cntr_vect = [cntr1, cntr2, cntr3, manoeuvre_bool]
-    # U_trajectory : sert a decider si on sort apres une traj en U ou en L (demander tutur si besoin)
     def avoid_forward(self, avoiding_side, cntr_vect, U_trajectory):
-        #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
-        
+        '''
+        avoids obstacles going forward
+        input: avoiding side, counter vector, U trajectory boolean
+        output: cntr_vect = [cntr1, cntr2, cntr3, manoeuvre_bool]
+        '''
+       
         if(not(cntr_vect[3])):
             self.line_pos_y = self.pc._y
             cntr_vect[3] = True
         
-        #mnt, cntr_vect[3] sera True tant que le drone manoeuvre pour eviter l'obstacle. c'est le bool qu'on lit a l'ext pour decider de quand
-        #le drone sort de l'obstacle avoidance.
-        
-        #obstacle toujours en face? 
-        #si oui: obstacle_in_front = True; incr = 0; droite ou gauche
-        if(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR):
-            #MEMOIRE DE LA POSITION EN X POUR Y REVENIR 
-            ## peut etre ajouter condition de border
+        # slide perpendicularly to original trajectory
+        if(isinstance(self.multiranger._front_distance, float) and\
+            self.multiranger._front_distance < mn.THRESHOLD_SENSOR):
             if avoiding_side == Direction.right:
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
             else:
-                self.pc.left(mn.DISTANCE_STANDARD_STEP)
-            #si obstacle mais pas en overshoot : cntr = 0.
-            
-            
+                self.pc.left(mn.DISTANCE_STANDARD_STEP)       
             return [0,0,0,1]
 
-
-        #en train de coulisser face  à l'obstacle step 1
         elif(cntr_vect[0]<self.overshoot and cntr_vect[1]==0):
             if avoiding_side == Direction.right:
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
@@ -59,33 +47,37 @@ class ObstacleAvoidanceStep(State):
                 self.pc.left(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[0]+=1
             cntr_vect[1]=0
-            
             return cntr_vect
 
-         # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
         elif(cntr_vect[0]==self.overshoot and cntr_vect[1]==0):
             self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[1]+=1
-            
             return cntr_vect
 
-        # MANOEUVRE FACE A L'OBJET FINIE
-
-        # manoeuvre de preshoot en action, drone sur le _ du U: 
-
+        # if no object in front anymore
         elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot and U_trajectory):
-            
+            # move along obstacle untill preshoot reached
             if(cntr_vect[1]<self.preshoot): 
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
-            elif(cntr_vect[1]==self.preshoot and ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
+            # move along obstacle as long as the obstacle is detected along
+            elif(cntr_vect[1]==self.preshoot and\
+                    ((isinstance(self.multiranger._right_distance, float) and\
+                     self.multiranger._right_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or\
+                     (isinstance(self.multiranger._left_distance, float) and\
+                         self.multiranger._left_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
-            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE) and cntr_vect[2]<self.overshoot):
+            # move away from obstacle untill overshoot is reached
+            elif(cntr_vect[1]==self.preshoot and\
+                 not(isinstance(self.multiranger._front_distance, float) and\
+                     self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE) and\
+                           cntr_vect[2]<self.overshoot):
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
-        
             return cntr_vect
 
+        # if U trajectory is True, go back to the moving axis before obstacle
+        # once no obstacle detected anymore
         elif(cntr_vect[2]==self.overshoot):
             if(U_trajectory):
                 if((abs(self.pc._y-self.line_pos_y)<mn.TOLERANCE_DIST)):
@@ -97,40 +89,38 @@ class ObstacleAvoidanceStep(State):
                     else:  
                         self.pc.right(mn.DISTANCE_STANDARD_STEP)
                 return cntr_vect
+            
+            # End of object avoidance, counters are reset and boolean is set to False
             else: 
                 cntr_vect = [0,0,0,0]
-    #           cntr_vect[3]=False
                 return cntr_vect
-    
+        
+        # End of object avoidance, counters are reset and boolean is set to False
         else:
             cntr_vect = [0,0,0,0]
             return cntr_vect
     
     
     def avoid_backward(self, avoiding_side, cntr_vect, U_trajectory):
-        #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
-        
+        '''
+        avoids obstacles going backward
+        input: avoiding side, counter vector, U trajectory boolean
+        output: cntr_vect = [cntr1, cntr2, cntr3, manoeuvre_bool]
+        '''
         if(not(cntr_vect[3])):
             self.line_pos_y = self.pc._y
             cntr_vect[3] = True
-        
-        #mnt, cntr_vect[3] sera True tant que le drone manoeuvre pour eviter l'obstacle. c'est le bool qu'on lit a l'ext pour decider de quand
-        #le drone sort de l'obstacle avoidance.
-        
-        #obstacle toujours en face? 
-        #si oui: obstacle_in_front = True; incr = 0; droite ou gauche
-        if(isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR):
-            #MEMOIRE DE LA POSITION EN X POUR Y REVENIR 
-            ## peut etre ajouter condition de border
+
+        # slide perpendicularly to original trajectory
+        if(isinstance(self.multiranger._back_distance, float) and\
+             self.multiranger._back_distance < mn.THRESHOLD_SENSOR):
             if avoiding_side == Direction.right:
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
             else:
                 self.pc.left(mn.DISTANCE_STANDARD_STEP)
-            #si obstacle mais pas en overshoot : cntr = 0.
             return [0,0,0,1]
 
 
-        #en train de coulisser face  à l'obstacle step 1
         elif(cntr_vect[0]<self.overshoot and cntr_vect[1]==0):
             if avoiding_side == Direction.right:
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
@@ -140,35 +130,38 @@ class ObstacleAvoidanceStep(State):
             cntr_vect[1]=0
             return cntr_vect
 
-            # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
         elif(cntr_vect[0]==self.overshoot and cntr_vect[1]==0):
             self.pc.back(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[1]+=1
             return cntr_vect
 
-        # MANOEUVRE devant A L'OBJET FINIE
-
-        # manoeuvre de preshoot en action, drone sur le _ du U: 
-
+        # if no object in front of initial trajectory anymore
         elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot and U_trajectory):
+            # move along obstacle untill preshoot reached
             if(cntr_vect[1]<self.preshoot): 
                 self.pc.back(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
-            elif(cntr_vect[1]==self.preshoot and 
-                ((isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or
-                (isinstance(self.multiranger._left_distance, float) and self.multiranger._left_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
+            # move along obstacle as long as the obstacle is detected along
+            elif(cntr_vect[1]==self.preshoot and\
+                ((isinstance(self.multiranger._right_distance, float) and\
+                     self.multiranger._right_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or\
+                (isinstance(self.multiranger._left_distance, float) and\
+                     self.multiranger._left_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
                 self.pc.back(mn.DISTANCE_STANDARD_STEP)
-            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE) and cntr_vect[2]<self.overshoot):
+            # move away from obstacle untill overshoot is reached
+            elif(cntr_vect[1]==self.preshoot and\
+                 not(isinstance(self.multiranger._front_distance, float) and\
+                      self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE) and cntr_vect[2]<self.overshoot):
                 self.pc.back(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
-            
             return cntr_vect
 
+        # if U trajectory is True, go back to the moving axis before obstacle
+        # once no obstacle detected anymore
         elif(cntr_vect[2]==self.overshoot):
             if(U_trajectory):
                 if((abs(self.pc._y-self.line_pos_y)<mn.TOLERANCE_DIST)):
                     cntr_vect = [0,0,0,0]
-    #               cntr_vect[3]=False
                     return cntr_vect
                 else:
                     if(avoiding_side == Direction.right): 
@@ -177,134 +170,116 @@ class ObstacleAvoidanceStep(State):
                         self.pc.right(mn.DISTANCE_STANDARD_STEP)
                 return cntr_vect
 
+            # End of object avoidance, counters are reset and boolean is set to False
             else: 
                 cntr_vect = [0,0,0,0]
-    #           cntr_vect[3]=False
                 return cntr_vect
         else:
+        # End of object avoidance, counters are reset and boolean is set to False
             cntr_vect = [0,0,0,0]
             return cntr_vect
 
 
     def avoid_right_side(self, avoiding_side, cntr_vect, U_trajectory):
-        #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
-        
+        '''
+        avoids obstacles movings towards the right direction
+        input: avoiding side, counter vector, U trajectory boolean
+        output: cntr_vect = [cntr1, cntr2, cntr3, manoeuvre_bool]
+        '''
         if(not(cntr_vect[3])):
             self.line_pos_x = self.pc._x
             cntr_vect[3] = True
-        
-        #mnt, cntr_vect[3] sera True tant que le drone manoeuvre pour eviter l'obstacle. c'est le bool qu'on lit a l'ext pour decider de quand
-        #le drone sort de l'obstacle avoidance.
-        
-        #obstacle toujours en face? 
-        #si oui: obstacle_in_front = True; incr = 0; droite ou gauche
-        
-            
-        if(isinstance(self.multiranger._right_distance, float) and self.multiranger._right_distance < mn.THRESHOLD_SENSOR):
-            #MEMOIRE DE LA POSITION EN X POUR Y REVENIR 
-            ## peut etre ajouter condition de border
-            
+
+        # slide perpendicularly to original trajectory
+        if(isinstance(self.multiranger._right_distance, float) and\
+             self.multiranger._right_distance < mn.THRESHOLD_SENSOR):        
             if avoiding_side == Direction.forward:
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             else:
                 self.pc.back(mn.DISTANCE_STANDARD_STEP)
-            #si obstacle mais pas en overshoot : cntr = 0.
             return [0,0,0,1]
 
-
-        #en train de coulisser face  à l'obstacle step 1
         elif(cntr_vect[0]<self.overshoot and cntr_vect[1]==0):
-            
-            
             if avoiding_side == Direction.forward:
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             else:
                 self.pc.back(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[0]+=1
             cntr_vect[1]=0
-            
             return cntr_vect
 
-            # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
         elif(cntr_vect[0]==self.overshoot and cntr_vect[1]==0):
-            
             self.pc.right(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[1]+=1
-            
             return cntr_vect
 
-        # MANOEUVRE devant A L'OBJET FINIE
-
-        # manoeuvre de preshoot en action, drone sur le _ du U: 
-
+        # if no object in front of initial trajectory anymore
         elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot and U_trajectory):
-            
+            # move along obstacle untill preshoot reached
             if(cntr_vect[1]<self.preshoot): 
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
-                
+            # move along obstacle as long as the obstacle is detected along
             elif(cntr_vect[1]==self.preshoot and 
-                ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or
-                (isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
+                ((isinstance(self.multiranger._back_distance, float) and\
+                     self.multiranger._back_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or\
+                (isinstance(self.multiranger._front_distance, float) and\
+                     self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
-            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE)
-                    and cntr_vect[2]<self.overshoot):
-                
+            # move away from obstacle untill overshoot is reached
+            elif(cntr_vect[1]==self.preshoot and\
+                 not(isinstance(self.multiranger._front_distance, float) and\
+                      self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE) and\
+                           cntr_vect[2]<self.overshoot):
                 self.pc.right(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
-
             return cntr_vect
 
+        # if U trajectory is True, go back to the moving axis before obstacle
+        # once no obstacle detected anymore
         elif(cntr_vect[2]==self.overshoot):
-            
             if(U_trajectory):
-                
                 if((abs(self.pc._x-self.line_pos_x)<mn.TOLERANCE_DIST)):
                     cntr_vect = [0,0,0,0]
-    #               cntr_vect[3]=False
                     return cntr_vect
                 else:
                     if(avoiding_side == Direction.forward): 
                         self.pc.back(mn.DISTANCE_STANDARD_STEP)
                     else:  
                         self.pc.forward(mn.DISTANCE_STANDARD_STEP)
-
                 return cntr_vect
 
+            # End of object avoidance, counters are reset and boolean is set to False
             else: 
                 cntr_vect = [0,0,0,0]
-    #           cntr_vect[3]=False
                 return cntr_vect
 
+        # End of object avoidance, counters are reset and boolean is set to False
         else:
             cntr_vect = [0,0,0,0]
             return cntr_vect
         
 
-    def avoid_left_side(self, avoiding_side, cntr_vect, U_trajectory):
-        #si premiere fois qu'on entre dans obstacle avoidance (man_bool est encore = a 0), on sauvegarde self.line_pos_y
-        
+    def avoid_left_side(self, avoiding_side, cntr_vect, U_trajectory): 
+        '''
+        avoids obstacles movings towards the left direction
+        input: avoiding side, counter vector, U trajectory boolean
+        output: cntr_vect = [cntr1, cntr2, cntr3, manoeuvre_bool]
+        '''       
         if(not(cntr_vect[3])):
             self.line_pos_x = self.pc._x
             cntr_vect[3] = True
-        
-        #mnt, cntr_vect[3] sera True tant que le drone manoeuvre pour eviter l'obstacle. c'est le bool qu'on lit a l'ext pour decider de quand
-        #le drone sort de l'obstacle avoidance.
-        
-        #obstacle toujours en face? 
-        #si oui: obstacle_in_front = True; incr = 0; droite ou gauche
-        if(isinstance(self.multiranger.left, float) and self.multiranger.left < mn.THRESHOLD_SENSOR):
-            #MEMOIRE DE LA POSITION EN X POUR Y REVENIR 
-            ## peut etre ajouter condition de border
+ 
+        # slide perpendicularly to original trajectory        
+        if(isinstance(self.multiranger.left, float) and\
+             self.multiranger.left < mn.THRESHOLD_SENSOR):
             if avoiding_side == Direction.forward:
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
             else:
                 self.pc.back(mn.DISTANCE_STANDARD_STEP)
-            #si obstacle mais pas en overshoot : cntr = 0.
             return [0,0,0,1]
 
 
-        #en train de coulisser face  à l'obstacle step 1
         elif(cntr_vect[0]<self.overshoot and cntr_vect[1]==0):
             if avoiding_side == Direction.forward:
                 self.pc.forward(mn.DISTANCE_STANDARD_STEP)
@@ -314,51 +289,53 @@ class ObstacleAvoidanceStep(State):
             cntr_vect[1]=0
             return cntr_vect
 
-            # si pas d'objet et counter a compté overshoot incréments, on fait un bond en avant
         elif(cntr_vect[0]==self.overshoot and cntr_vect[1]==0):
             self.pc.left(mn.DISTANCE_STANDARD_STEP)
             cntr_vect[1]+=1
             return cntr_vect
 
-        # MANOEUVRE devant A L'OBJET FINIE
-
-        # manoeuvre de preshoot en action, drone sur le _ du U: 
-
+        # if no object in front of initial trajectory anymore
         elif(cntr_vect[1]!=0 and cntr_vect[2]<self.overshoot and U_trajectory):
-            
+            # move along obstacle untill preshoot reached    
             if(cntr_vect[1]<self.preshoot):
-                
                 self.pc.left(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[1]+=1
-            elif(cntr_vect[1]==self.preshoot and 
-                ((isinstance(self.multiranger._back_distance, float) and self.multiranger._back_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or
-                (isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
+            # move along obstacle as long as the obstacle is detected along
+            elif(cntr_vect[1]==self.preshoot and\
+                 ((isinstance(self.multiranger._back_distance, float) and\
+                      self.multiranger._back_distance < mn.THRESHOLD_SENSOR_OVERTAKE) or\
+                           (isinstance(self.multiranger._front_distance, float) and\
+                               self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE))): 
                 self.pc.left(mn.DISTANCE_STANDARD_STEP)
-            elif(cntr_vect[1]==self.preshoot and not(isinstance(self.multiranger._front_distance, float) and self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE)
-                    and cntr_vect[2]<self.overshoot):
+            # move away from obstacle untill overshoot is reached
+            elif(cntr_vect[1]==self.preshoot and\
+                 not(isinstance(self.multiranger._front_distance, float) and\
+                      self.multiranger._front_distance < mn.THRESHOLD_SENSOR_OVERTAKE) and\
+                           cntr_vect[2]<self.overshoot):
                 self.pc.left(mn.DISTANCE_STANDARD_STEP)
                 cntr_vect[2]+=1
             return cntr_vect
 
+        # if U trajectory is True, go back to the moving axis before obstacle
+        # once no obstacle detected anymore
         elif(cntr_vect[2]==self.overshoot):
             if(U_trajectory):
-                
                 if((abs(self.pc._x-self.line_pos_x)<mn.TOLERANCE_DIST)):
                     cntr_vect = [0,0,0,0]
-    #               cntr_vect[3]=False
                     return cntr_vect
                 else:
                     if(avoiding_side == Direction.forward): 
                         self.pc.back(mn.DISTANCE_STANDARD_STEP)
                     else:  
                         self.pc.forward(mn.DISTANCE_STANDARD_STEP)
-            
                 return cntr_vect
 
+            # End of object avoidance, counters are reset and boolean is set to False
             else: 
                 cntr_vect = [0,0,0,0]
-    #           cntr_vect[3]=False
                 return cntr_vect
+
+        # End of object avoidance, counters are reset and boolean is set to False
         else:
             cntr_vect = [0,0,0,0]
             return cntr_vect
