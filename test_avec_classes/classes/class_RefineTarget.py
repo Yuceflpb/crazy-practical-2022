@@ -156,7 +156,6 @@ class RefineTarget(State):
             self.pc.right(mn.DISTANCE_REFINE_STEP)
 
         if self.step_down_detection():
-            print("step off")
             if self.direction_comming == Direction.forward:
                 self.pc.right(mn.BIG_STEP)
             elif self.direction_comming == Direction.left:

@@ -24,9 +24,9 @@ uri = uri_helper.uri_from_env(default='radio://0/80/2M/E7E7E7E7E7')
 
 cflib.crtp.init_drivers()
 
-#récupérer ca quand on lance le programme, ou hardcode
-x_init = 0.6
-y_init = 0.7
+#Initial position
+x_init = 1
+y_init = 2
 cf=Crazyflie(rw_cache='./cache')
 
 with SyncCrazyflie(uri, cf) as scf:
@@ -43,8 +43,6 @@ with SyncCrazyflie(uri, cf) as scf:
             time.sleep(mn.WAITING_TIME_MED)
 
             #init state
-
-            #state = State.search_target
             state = State.take_off_from_base
             
 
@@ -90,7 +88,6 @@ with SyncCrazyflie(uri, cf) as scf:
 
             #---INFINITE WHILE LOOP---#
             while True:
-                #print('pc x=', pc._x,'y = ', pc._y)
 
                 ##################
                 #### TAKE OFF ####
@@ -199,7 +196,6 @@ with SyncCrazyflie(uri, cf) as scf:
                         state = State.refine_target
                         direction_comming = direction_st 
                         
-                        print(direction_comming)
 
                     np.roll(array_down_dist, 1)
                     array_down_dist[0] = multiranger._down_distance
